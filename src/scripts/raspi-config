@@ -4,9 +4,9 @@
 sudo raspi-config
 
 # Configure locales
-sudo export LANGUAGE=en_US.UTF-8
-sudo export LANG=en_US.UTF-8
-sudo export LC_ALL=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 sudo locale-gen en_US.UTF-8
 sudo dpkg-reconfigure locales
 
@@ -14,7 +14,7 @@ sudo dpkg-reconfigure locales
 touch $HOME/.bash_history
 chmod 000 $HOME/.bash_history
 
-# Disable ssh login using user and password
+# Disable ssh login by user and password
 cat /etc/ssh/sshd_config \
 	| sed 's/PasswordAuthentication yes/PasswordAuthentication no/' \
 	| sed 's/#PasswordAuthentication no/PasswordAuthentication no/' \
@@ -23,7 +23,8 @@ cat /etc/ssh/sshd_config \
 	| sed 's/UsePAM yes/UsePAM no/' \
 	| sed 's/#UsePAM no/UsePAM no/' \
 	> sshd_config \
-	&& mv sshd_config /etc/ssh/sshd_config
+	&& sudo chown root:root sshd_config \
+	&& sudo mv sshd_config /etc/ssh/sshd_config
 
 # Restart ssh service
 sudo systemctl restart ssh.service
@@ -33,3 +34,10 @@ rfkill block bluetooth
 rfkill block wlan
 
 # Setting keyboard
+cat /etc/default/keyboard \
+	| sed 's/XKBLAYOUT="gb"/XKBLAYOUT="us"' \
+	> keyboard \
+	&& sudo chown root:root keyboard \
+	sudo mv keyboard /etc/default/keyboard
+
+#

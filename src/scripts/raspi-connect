@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Raspberry Pi: default user and password
 RASPBERRY_USER=pi
@@ -7,8 +7,11 @@ RASPBERRY_PASSWORD=raspberry
 # Raspberry Pi: IP address
 RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $1;}')
 
+# Prompt
+# echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
+
 # Set up acces using ssh key
-# ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP
+# ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP 1> /dev/null 2> /dev/null
 
 # Raspberry Pi: ssh connection
 ssh $RASPBERRY_USER@$RASPBERRY_IP
