@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Raspberry Pi: default user and password
+RASPBERRY_USER=pi
+RASPBERRY_PASSWORD=raspberry
+
+# Raspberry Pi: IP address
+LOCAL_NETWORK=$(sudo nmcli device show | grep "IP4.ROUTE" | awk '{print $4}' | head -n 1 | head -c -2)
+RASPBERRY_IP=$(sudo arp-scan $LOCAL_NETWORK | grep "Raspberry Pi Foundation" | awk '{print $1;}')
+
+# Set up acces using ssh key
+ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP
+
+# Raspberry Pi: ssh connection
+ssh $RASPBERRY_USER@$RASPBERRY_IP
