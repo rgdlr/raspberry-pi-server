@@ -5,7 +5,7 @@
 # RASPBERRY_USER=pi
 # RASPBERRY_PASSWORD=raspberry
 
-# LOCAL_NETWORK=$(nmcli device show | grep "IP4.ROUTE\[2\]" | awk '{print $4}' | head -n 1 | head -c -2)
+# LOCAL_NETWORK=$(nmcli device show | grep "IP4.ROUTE" | awk '{print $4}' | head -n 1 | head -c -2)
 # RASPBERRY_IP=$(sudo arp-scan $LOCAL_NETWORK | grep Raspberry | awk '{print $1;}')
 
 
