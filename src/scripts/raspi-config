@@ -10,9 +10,12 @@ export LC_ALL=en_US.UTF-8
 sudo locale-gen en_US.UTF-8
 sudo dpkg-reconfigure locales
 
-# Enable bash history only for user session
-touch $HOME/.bash_history
-chmod 000 $HOME/.bash_history
+# Setting keyboard
+cat /etc/default/keyboard \
+	| sed 's/XKBLAYOUT="gb"/XKBLAYOUT="us"' \
+	> keyboard \
+	&& sudo chown root:root keyboard \
+	sudo mv keyboard /etc/default/keyboard
 
 # Disable ssh login by user and password
 cat /etc/ssh/sshd_config \
@@ -29,15 +32,12 @@ cat /etc/ssh/sshd_config \
 # Restart ssh service
 sudo systemctl restart ssh.service
 
+# Enable bash history only for user session
+touch $HOME/.bash_history
+chmod 000 $HOME/.bash_history
+
 # Disabling wifi and bluetooth
 rfkill block bluetooth
 rfkill block wlan
-
-# Setting keyboard
-cat /etc/default/keyboard \
-	| sed 's/XKBLAYOUT="gb"/XKBLAYOUT="us"' \
-	> keyboard \
-	&& sudo chown root:root keyboard \
-	sudo mv keyboard /etc/default/keyboard
 
 #

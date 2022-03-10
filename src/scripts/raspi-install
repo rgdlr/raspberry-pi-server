@@ -6,5 +6,4 @@ sudo apt install git -y
 # Install Oh My Bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 
-# # Uninstall Oh My Bash
-# uninstall_oh_my_bash
+#
