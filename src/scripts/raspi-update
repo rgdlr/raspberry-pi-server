@@ -3,4 +3,5 @@
 # Update Raspberry
 sudo apt udpdate
 sudo apt upgrade -y
+sudo apt full-upgrade -y
 sudo apt dist-upgrade -y

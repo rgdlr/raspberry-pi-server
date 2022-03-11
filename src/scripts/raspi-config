@@ -10,14 +10,18 @@ export LC_ALL=en_US.UTF-8
 sudo locale-gen en_US.UTF-8
 sudo dpkg-reconfigure locales
 
-# Setting keyboard
+# Configure keyboard
 cat /etc/default/keyboard \
 	| sed 's/XKBLAYOUT="gb"/XKBLAYOUT="us"' \
 	> keyboard \
 	&& sudo chown root:root keyboard \
 	sudo mv keyboard /etc/default/keyboard
 
-# Disable ssh login by user and password
+# Limit ssh connections through firewall
+sudo ufw limit 22
+sudo ufw enable
+
+# Disable ssh login through user and password
 cat /etc/ssh/sshd_config \
 	| sed 's/PasswordAuthentication yes/PasswordAuthentication no/' \
 	| sed 's/#PasswordAuthentication no/PasswordAuthentication no/' \
@@ -36,8 +40,15 @@ sudo systemctl restart ssh.service
 touch $HOME/.bash_history
 chmod 000 $HOME/.bash_history
 
-# Disabling wifi and bluetooth
-rfkill block bluetooth
-rfkill block wlan
+# Create github directory
+mkdir -p $HOME/git/github
+
+# Configure oh-my-bash
+# TODO: set user settings and disable auto-update
+mv $HOME/.oh-my-bash $HOME/git/github/oh-my-bash
+
+# Disable bluetooth and wifi on startup
+echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local
+echo "rfkill block wifi" | sudo tee -a /etc/rc.local
 
 #

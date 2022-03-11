@@ -1,6 +1,6 @@
 #!/bin/sh
 
 ./raspi-connect
-./raspi-config
 ./raspi-update
 ./raspi-install
+./raspi-config

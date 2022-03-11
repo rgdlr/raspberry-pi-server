@@ -1,9 +1,21 @@
 #!/bin/sh
 
-# Install Git
+# Install firewall
+sudo apt install ufw -y
+
+# Install git
 sudo apt install git -y
 
-# Install Oh My Bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+# Install oh-my-bash
+curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
 
-#
+# Install nvm
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+
+# Install nodejs
+nvm install --lts
+
+# Install npm
+sudo apt install nodejs -y
+
+# 
