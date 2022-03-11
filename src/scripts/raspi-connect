@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Raspberry Pi: default user and password
 RASPBERRY_USER=pi
