@@ -12,7 +12,7 @@ sudo dpkg-reconfigure locales
 
 # Configure keyboard
 cat /etc/default/keyboard \
-	| sed 's/XKBLAYOUT="gb"/XKBLAYOUT="us"' \
+	| sed 's/XKBLAYOUT=\"gb\"/XKBLAYOUT=\"us\"' \
 	> keyboard \
 	&& sudo chown root:root keyboard \
 	sudo mv keyboard /etc/default/keyboard
