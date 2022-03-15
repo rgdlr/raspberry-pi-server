@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Router IP
+ROUTER_IP=$(ip r | grep default | awk '{print $3;}')
+
+# DNS Server
+DNS_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2;}')
+
+# Raspberry IP
+RASPBERRY_IP=192.168.1.3
+RASPBERRY_MASK=24
+
+# Raspberry IF
+RASPBERRY_IF=eth0
+
+# DHCP Configuration
+echo "interface $RASPBERRY_IF
+static ip_address=$RASPBERRY_IP/$RASPBERRY_MASK
+static routers=$ROUTER_IP
+static domain_name_servers=$DNS_IP
+" | sudo tee -a /etc/dhcpcd.conf
