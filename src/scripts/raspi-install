@@ -18,4 +18,4 @@ nvm install --lts
 # Install npm
 sudo apt install nodejs -y
 
-# 
+# ...

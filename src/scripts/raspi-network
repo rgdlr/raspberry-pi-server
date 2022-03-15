@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Network Public IP
+PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+echo "$PUBLIC_IP"

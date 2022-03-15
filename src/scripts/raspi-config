@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Configure Raspberry
-sudo raspi-config
+# sudo raspi-config
 
 # Configure locales
 export LANGUAGE=en_US.UTF-8
@@ -51,4 +51,4 @@ mv $HOME/.oh-my-bash $HOME/git/github/oh-my-bash
 echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local
 echo "rfkill block wifi" | sudo tee -a /etc/rc.local
 
-#
+# ...
