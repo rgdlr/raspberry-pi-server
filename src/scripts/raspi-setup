@@ -1,3 +1,16 @@
 #!/bin/sh
 
-./raspi-ssh
+whiptail \
+	--title "Raspberry Pi Setup" \
+	--menu "Select an option" 20 80 10 \
+		"SSH Keys" "Create ssh keys for Raspberry Pi secure access" \
+		"SSH Copy" "Copy ssh keys to Raspberry Pi" \
+		"SSH Connect  " "Connect Raspberry Pi using user and password" \
+		"SSH Connect  " "Connect Raspberry Pi using ssh keys" \
+		"Update" "Update Raspberry Pi system packages" \
+		"Install" "Install Raspberry Pi packages" \
+		"Static IP" "Create Static IP for Raspberry Pi" \
+		"Public IP" "Get local network public IP" \
+		"Configure" "Configure Raspberry Pi automatically" \
+
+# ./raspi-ssh
