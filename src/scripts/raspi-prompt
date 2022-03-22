@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Install oh-my-bash
+curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
+
+# Configure oh-my-bash
+# TODO: set user settings and disable auto-update
+mv $HOME/.oh-my-bash $HOME/git/github/oh-my-bash

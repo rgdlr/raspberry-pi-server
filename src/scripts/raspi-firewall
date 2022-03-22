@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Install firewall
+sudo apt install ufw -y
+
+# Limit ssh connections through firewall
+sudo ufw limit 22
+sudo ufw enable

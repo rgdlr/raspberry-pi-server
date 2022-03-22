@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Setup menu
 whiptail \
 	--title "Raspberry Pi Setup" \
 	--menu "Select an option" 20 80 10 \
@@ -12,5 +13,3 @@ whiptail \
 		"Static IP" "Create Static IP for Raspberry Pi" \
 		"Public IP" "Get local network public IP" \
 		"Configure" "Configure Raspberry Pi automatically" \
-
-# ./raspi-ssh

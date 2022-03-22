@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Configure locales
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+sudo locale-gen en_US.UTF-8
+sudo dpkg-reconfigure locales
+
+# Configure keyboard
+cat /etc/default/keyboard \
+	| sed 's/XKBLAYOUT=\"gb\"/XKBLAYOUT=\"us\"' \
+	> keyboard \
+	&& sudo chown root:root keyboard \
+	sudo mv keyboard /etc/default/keyboard

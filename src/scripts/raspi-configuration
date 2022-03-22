@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Configure Raspberry
-# sudo raspi-config
-
 # Configure locales
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -39,13 +36,6 @@ sudo systemctl restart ssh.service
 # Enable bash history only for user session
 touch $HOME/.bash_history
 chmod 000 $HOME/.bash_history
-
-# Create github directory
-mkdir -p $HOME/git/github
-
-# Configure oh-my-bash
-# TODO: set user settings and disable auto-update
-mv $HOME/.oh-my-bash $HOME/git/github/oh-my-bash
 
 # Disable bluetooth and wifi on startup
 echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local

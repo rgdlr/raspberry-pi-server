@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Disable ssh login through user and password
+cat /etc/ssh/sshd_config \
+	| sed 's/PasswordAuthentication yes/PasswordAuthentication no/' \
+	| sed 's/#PasswordAuthentication no/PasswordAuthentication no/' \
+	| sed 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' \
+	| sed 's/#ChallengeResponseAuthentication no/ChallengeResponseAuthentication no/' \
+	| sed 's/UsePAM yes/UsePAM no/' \
+	| sed 's/#UsePAM no/UsePAM no/' \
+	> sshd_config \
+	&& sudo chown root:root sshd_config \
+	&& sudo mv sshd_config /etc/ssh/sshd_config
+
+# Restart ssh service
+sudo systemctl restart ssh.service

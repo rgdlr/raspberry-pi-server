@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Disable bluetooth and wifi on startup
+echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local
+echo "rfkill block wifi" | sudo tee -a /etc/rc.local
