@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Disable ssh login through user and password
 cat /etc/ssh/sshd_config \

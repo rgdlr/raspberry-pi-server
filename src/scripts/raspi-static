@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Router IP
 ROUTER_IP=$(ip r | grep default | awk '{print $3;}')

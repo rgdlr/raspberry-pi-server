@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Configure locales
 export LANGUAGE=en_US.UTF-8

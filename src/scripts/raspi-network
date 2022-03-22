@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Network Public IP
 PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
