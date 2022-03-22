@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Create ssh keys
+ssh-keygen
+
+# Create ssh agent
+eval `ssh-agent`
+
 # Raspberry Pi: default user and password
 RASPBERRY_USER=pi
 RASPBERRY_PASSWORD=raspberry
@@ -10,5 +16,5 @@ RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $
 # Prompt
 # echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
 
-# Raspberry Pi: ssh connection
-ssh $RASPBERRY_USER@$RASPBERRY_IP
+# Set up acces using ssh key
+ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP 1> /dev/null 2> /dev/null

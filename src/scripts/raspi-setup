@@ -1,15 +1,32 @@
 #!/bin/bash
 
-# Setup menu
-whiptail \
-	--title "Raspberry Pi Setup" \
-	--menu "Select an option" 20 80 10 \
-		"SSH Keys" "Create ssh keys for Raspberry Pi secure access" \
-		"SSH Copy" "Copy ssh keys to Raspberry Pi" \
-		"SSH Connect  " "Connect Raspberry Pi using user and password" \
-		"SSH Connect  " "Connect Raspberry Pi using ssh keys" \
-		"Update" "Update Raspberry Pi system packages" \
-		"Install" "Install Raspberry Pi packages" \
-		"Static IP" "Create Static IP for Raspberry Pi" \
-		"Public IP" "Get local network public IP" \
-		"Configure" "Configure Raspberry Pi automatically" \
+function raspi-menu {
+	SELECTION=$(
+		whiptail \
+			--title "Raspberry Pi Setup" \
+			--menu "Select an option" 20 80 10 \
+				"Configuration" "Generic Raspberry Pi configuration" \
+				"SSH Keys" "Create ssh keys for Raspberry Pi secure access" \
+				"SSH Copy" "Copy ssh keys to Raspberry Pi" \
+				"SSH Connect" "Connect Raspberry Pi using user and password" \
+				"SSH Connect" "Connect Raspberry Pi using ssh keys" \
+				"Update" "Update Raspberry Pi system packages" \
+				"Install" "Install Raspberry Pi packages" \
+				"Static IP" "Create Static IP for Raspberry Pi" \
+				"Public IP" "Get local network public IP" \
+				"Configure" "Configure Raspberry Pi automatically" 3>&1 1>&2 2>&3
+		)
+
+	case $SELECTION in
+		"Configuration")
+			raspi-config
+			;;
+		*)
+			exit
+			;;
+	esac
+}
+
+while [ 1 ]; do
+	raspi-menu
+done

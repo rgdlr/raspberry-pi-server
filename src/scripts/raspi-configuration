@@ -32,13 +32,3 @@ cat /etc/ssh/sshd_config \
 
 # Restart ssh service
 sudo systemctl restart ssh.service
-
-# Enable bash history only for user session
-touch $HOME/.bash_history
-chmod 000 $HOME/.bash_history
-
-# Disable bluetooth and wifi on startup
-echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local
-echo "rfkill block wifi" | sudo tee -a /etc/rc.local
-
-# ...
