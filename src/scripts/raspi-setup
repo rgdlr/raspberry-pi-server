@@ -14,12 +14,12 @@ function raspi-menu {
 				"Install" "Install Raspberry Pi packages" \
 				"Static IP" "Create Static IP for Raspberry Pi" \
 				"Public IP" "Get local network public IP" \
-				"Configure" "Configure Raspberry Pi automatically" 3>&1 1>&2 2>&3
+				"Configure" "Configure Raspberry Pi automatically" 1>&2 2>&3 3>&1
 		)
 
 	case $SELECTION in
 		"Configuration")
-			raspi-config
+			sudo raspi-config
 			;;
 		*)
 			exit
