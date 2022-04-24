@@ -1,0 +1,51 @@
+% Format
+\geometry{a4paper}
+
+% Fonts
+\renewcommand{\familydefault}{\rmdefault}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+
+% Header
+\setlength{\headheight}{16pt}
+\lhead{\setTitle \vspace{0.2em}}
+\chead{}
+\rhead{\setSubTitle \vspace{0.2em}}
+\renewcommand{\headrulewidth}{0.2pt}
+
+% Footer
+\lfoot{}
+\cfoot{\vspace{0.3em} Página \thepage \space de \pageref*{LastPage}}
+\rfoot{}
+\renewcommand{\footrulewidth}{0.1pt}
+
+% Paragraph
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+\linespread{1.1}
+
+% List
+\setlist{
+    topsep=1em,
+    rightmargin=0em,
+    leftmargin=2em,
+    itemsep=0.25em,
+    before=\vspace{-1.5em},
+    after=\vspace{-1em}
+}
+
+% Column
+\setlength{\columnsep}{2em}
+
+% Hyperlink
+\hypersetup{
+    colorlinks=true,
+    filecolor=black!50!magenta!70,      
+    linkcolor=black!50!blue!80,
+    urlcolor=black!50!cyan!70,
+    pdftitle={\setTitle},
+    pdfauthor={\setAuthor},
+    % pdfpagemode=FullScreen,
+}

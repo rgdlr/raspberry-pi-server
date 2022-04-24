@@ -1,0 +1,266 @@
+\section{Revisión} \label{chapters:revision:sections:revision}
+
+\subsection{Objetivos} \label{chapters:revision:sections:revision:subsections:objetivos}
+
+El desarrollo del proyecto se dividió inicialmente en \textbf{dos partes}, habiéndose actualizado del siguiente modo:
+
+\textbf{Objetivos principales}: esenciales para cubrir la finalidad principal del proyecto.
+\begin{itemize}[itemsep=0em]
+    \item Creación de servidor doméstico accesible desde internet.
+    \item Creación de servicios de alojamiento web y base de datos.
+    \item Automatización de la instalación del proyecto y servicios principales.
+    \item \textit{\textcolor{black!50}{\sout{Implementación de sitio web para configuración del servidor.} modificado}} \newline
+    Implementación de interfaz de línea de comandos para configuración del servidor.
+    \item \textit{\textcolor{black!50}{\sout{Implementación de base de datos para almacenamiento de configuraciones.} mod.}} \newline
+    Uso de archivos de configuración para almacenamiento de configuraciones.
+\end{itemize}
+
+\textbf{Objetivos secundarios}: alternativas de ampliación del proyecto.
+\begin{itemize}[itemsep=0em]
+    \item Creación de acceso al entorno de desarrollo desde dispositivos externos.
+    \item Creación de equipo con conexión directa a los escritorios virtuales de la UPM.
+    \item \textit{\textcolor{black!50}{\sout{Creación de servicios: VPN, NFS, FTP.} eliminado}}
+    \item \textit{\textcolor{black!50}{\sout{Monitorización y configuración de servicios a través de Telegram.} modificado}} \newline
+    Monitorización y análisis de consumo del servidor ejecutando servicios.
+\end{itemize}
+
+Las \textbf{modificaciones} realizadas en los objetivos surgen debido a las siguientes \textbf{razones}:
+\begin{enumerate}[itemsep=0em]
+    \item \vspace{2pt} \textit{\textbf{Implementación de sitio web para configuración del servidor:}} \newline
+    El servidor (Raspberry) consta únicamente de una \textbf{interfaz de línea de comandos}. Por ello, la opción de efectuar las configuraciones desde una interfaz web se sustituye por una \textbf{herramienta ejecutable en la terminal} desde la máquina, ya sea en local o remoto (a través de SSH).
+
+    \item \vspace{2pt} \textit{\textbf{Implementación de base de datos para almacenamiento de configuración:}} \newline
+    El servidor (Raspberry), al igual que cualquier máquina, posee sus \textbf{propios archivos de configuración}. Por ello, modificando estos archivos directamente, se elimina el paso de almacenamiento en base de datos. \pagebreak
+
+    \item \vspace{2pt} \textit{\textbf{Creación de servicios: VPN, NFS, FTP:}} \newline
+    En la fase de análisis, se descubrió que la creación de servicios en el servidor es fácilmente realizable a través de \textbf{herramientas ya existentes}. Por ello, destinará más tiempo a otras tareas que puedan enriquecer en mayor grado el proyecto. De cualquier modo, se crearán los \textbf{servicios imprescindibles} para llevar a cabo las funcionalidades propuestas.
+
+    \item \vspace{2pt} \textit{\textbf{Monitorización y configuración de servicios a través de Telegram o comandos de voz:}} \newline
+    En la fase de análisis, y teniendo en cuenta el apartado de \textbf{Objetivos de Desarrollo Sostenible}, así como la \textbf{situación energética actual}, se creyó más conveniente tener en cuenta la posibilidad de monitorizar el consumo eléctrico del servidor y extraer las conclusiones realizando algunas comparaciones.
+\end{enumerate}
+
+\subsection{Tareas} \label{chapters:revision:sections:revision:subsections:tareas}
+
+Este apartado no ha sufrido modificaciones con respecto al \textbf{Plan de Trabajo}, pero, como se comentó en el mismo, se ha ampliado desglosando principalmente las tareas de \textbf{Implementación} y \textbf{Memoria}, generando los diagramas de Gantt correspondientes.
+
+Teniendo en cuenta los objetivos mencionados en la sección \ref{chapters:revision:sections:revision:subsections:objetivos}, y antes de comenzar con el desarrollo del trabajo, se \textbf{estimó} que las tareas establecidas conllevarían el siguiente \textbf{tiempo de dedicación}:
+
+\begin{multicols}{3}[\vspace{-0.5em}]
+    \begin{itemize}[leftmargin=2.5em, itemsep=0em]
+        \item [\textit{16h}] Estado del arte
+        \item [\textit{16h}] Análisis
+        \item [\textit{24h}] Diseño
+        \item [\textit{160h}] Implementación
+        \item [\textit{64h}] Pruebas
+        \item [\textit{12h}] Tareas coordinación
+        \item [\textit{40h}] Memoria
+        \item [\textit{12h}] Presentación
+        \item [\textit{4h}] Defensa
+    \end{itemize}
+\end{multicols} \vspace{-1em}
+
+Además, se está realizando la \textbf{documentación de desarrollo} solicitada, realizando las distintas \textbf{entregas}:
+
+\begin{multicols}{2}[\vspace{-0.5em}]
+    \begin{enumerate}[leftmargin=3em, itemsep=0em]
+        \item [\textbf{PT}] Plan de Trabajo
+        \item [\textbf{MS}] Memoria de Seguimiento
+        \item [\textbf{MF}] Memoria Final
+        \item [\textbf{PR}] Presentación
+    \end{enumerate}
+\end{multicols} \vspace{-1em}
+
+Y, por otro lado, se está generando la \textbf{documentación de uso} de la herramienta, con la finalidad de ofrecer un manual principalmente en \textbf{inglés}, aunque dependiendo del tiempo restante, se planteará la traducción de la misma al \textbf{español}.
+
+\subsection{Diagrama de Gantt} \label{chapters:revision:sections:revision:subsections:diagrama-gantt}
+
+Teniendo en cuenta las \textbf{tareas} descritas en el apartado \ref{chapters:revision:sections:revision:subsections:tareas}, el Diagrama de Gantt desarrollado durante el \textbf{Plan de Trabajo} fue el siguiente:
+
+\begin{figure}[ht]
+    \label{chapters:revision:sections:revision:subsections:diagrama-gantt:figure:plan}
+    \begin{ganttchart}[
+        include title in canvas=false,
+        expand chart=\textwidth,
+        hgrid={*1{gray, dashed}},
+        vgrid={*1{gray, dashed}},
+        title/.style={draw=none, fill=none},
+        title/.append style={opacity=.8},
+        title height=1,
+        y unit title=.7cm,
+        y unit chart=1cm,
+        group left shift=0,
+        group right shift=0,
+        group height=.0125cm,
+        group peaks height=.005cm,
+        group label font=\bfseries\small,
+        group progress label font=\scriptsize\color{black!35},
+        group/.append style={draw=black, fill=black!60},
+        group incomplete/.append style={draw=black, fill=black!15},
+        bar height=.015cm,
+        bar label font=\scriptsize,
+        bar progress label font=\scriptsize\color{black!35},
+        bar/.append style={draw=black, fill=black!30},
+        bar incomplete/.append style={fill=black!7},
+        milestone label font=\bfseries\small,
+        today label=Hoy,
+        today label font=\bfseries\scriptsize,
+        today=10,
+        progress=today,
+        progress label text={$\pgfmathprintnumber[precision=0, verbatim]{#1}\%\hspace{.1cm}completado$},
+    ]{1}{17}
+        \gantttitle[title label font=\color{black!60}]{Semana (desde el 14 de febrero)}{17} \ganttnewline
+        \gantttitlelist[y unit title=.7cm]{1,...,17}{1} \ganttnewline
+
+        \ganttgroup[progress=today]{Plan Trabajo}{1}{3}[name=plan-trabajo] \ganttnewline
+        \ganttbar[progress=today]{Documentación}{1}{3}[name=plan-trabajo-documentación] \ganttnewline
+        
+        \ganttgroup[progress=today]{Desarrollo}{3}{14}[name=desarrollo] \ganttnewline
+        \ganttbar[progress=today]{Análisis}{3}{6}[name=desarrollo-análisis] \ganttnewline
+        \ganttbar[progress=today]{Diseño}{3}{7}[name=desarrollo-diseño] \ganttnewline
+        \ganttbar[progress=today]{Implementación}{5}{14}[name=desarrollo-implementacion] \ganttnewline
+        \ganttbar[progress=today]{Pruebas}{5}{14}[name=pruebas] \ganttnewline
+
+        \ganttgroup[progress=today]{Memoria}{4}{15}[name=memoria] \ganttnewline
+        \ganttbar[progress=today]{Seguimiento}{4}{10}[name=memoria-seguimiento] \ganttnewline
+        \ganttbar[progress=today]{Final}{7}{15}[name=memoria-final] \ganttnewline
+        
+        \ganttgroup[progress=today]{Presentación}{16}{17}[name=presentacion] \ganttnewline
+        \ganttbar[progress=today]{Diapositivas}{16}{17}[name=diapositivas] \ganttnewline
+        
+        \ganttmilestone[progress label text=\hspace{.2cm}PT]{Entregas}{3}
+        \ganttmilestone[progress label text=\hspace{.2cm}MS]{}{10}
+        \ganttmilestone[progress label text=\hspace{.2cm}MF]{}{15}
+        \ganttmilestone[progress label text=\hspace{.2cm}PR]{}{17}
+    \end{ganttchart}
+    \caption{Diagrama de Gantt: Plan}
+\end{figure}
+
+Durante las fases de \textbf{Análisis} y \textbf{Diseño}, se realizó un \textbf{desglose} de las tareas de manera más exhaustiva, ya que, fue en este momento, cuando se decidió cómo llevar a cabo el \textbf{desarrollo del proyecto} con una mayor exactitud.
+
+\begin{figure}[ht]
+    \label{chapters:revision:sections:revision:subsections:diagrama-gantt:figure:desarrollo}
+    \begin{ganttchart}[
+        include title in canvas=false,
+        expand chart=\textwidth,
+        hgrid={*1{gray, dashed}},
+        vgrid={*1{gray, dashed}},
+        title/.style={draw=none, fill=none},
+        title/.append style={opacity=.8},
+        title height=1,
+        y unit title=.7cm,
+        y unit chart=.8cm,
+        group left shift=0,
+        group right shift=0,
+        group height=.0125cm,
+        group peaks height=.005cm,
+        group label font=\bfseries\small,
+        group progress label font=\scriptsize\color{black!35},
+        group/.append style={draw=black, fill=black!60},
+        group incomplete/.append style={draw=black, fill=black!15},
+        bar height=.015cm,
+        bar label font=\scriptsize,
+        bar progress label font=\scriptsize\color{black!35},
+        bar/.append style={draw=black, fill=black!30},
+        bar incomplete/.append style={fill=black!7},
+        milestone label font=\bfseries\small,
+        today label=Hoy,
+        today label font=\bfseries\scriptsize,
+        today=10,
+        progress=today,
+        progress label text={$\pgfmathprintnumber[precision=0, verbatim]{#1}\%\hspace{.1cm}completado$},
+    ]{1}{17}
+        \gantttitle[title label font=\color{black!60}]{Semana (desde el 14 de febrero)}{17} \ganttnewline
+        \gantttitlelist[y unit title=.7cm]{1,...,17}{1} \ganttnewline
+
+        \ganttgroup[progress=today]{Análisis}{3}{6}[name=análisis] \ganttnewline
+        \ganttbar[progress=today]{Viabilidad}{3}{4}[name=análisis-viabilidad] \ganttnewline
+        \ganttbar[progress=today]{Competencia}{4}{6}[name=análisis-competencia] \ganttnewline
+        
+        \ganttgroup[progress=today]{Diseño}{3}{7}[name=diseño] \ganttnewline
+        \ganttbar[progress=today]{Tecnologías}{3}{5}[name=diseño-tecnologías] \ganttnewline
+        \ganttbar[progress=today]{Casos uso}{5}{7}[name=diseño-casos-uso] \ganttnewline
+
+        \ganttgroup[progress=today]{Implementación}{5}{14}[name=implementación] \ganttnewline
+        \ganttbar[progress=today]{Instalación SO}{5}{5}[name=implementación-instalación-so] \ganttnewline
+        \ganttbar[progress=today]{Configuración SO}{5}{8}[name=implementación-configuración-so] \ganttnewline
+        \ganttbar[progress=today]{Conexión SSH}{6}{9}[name=implementación-conexión-ssh] \ganttnewline
+        \ganttbar[progress=today]{Documentación}{7}{14}[name=implementación-documentación] \ganttnewline
+        \ganttbar[progress=today]{Securización}{7}{14}[name=implementación-securización] \ganttnewline
+        \ganttbar[progress=today]{Acceso internet}{8}{10}[name=implementación-acceso-internet] \ganttnewline
+        \ganttbar[progress=today]{Servicios web y bd}{9}{12}[name=implementación-servicios-web-bd] \ganttnewline
+        \ganttbar[progress=today]{Despliegue remoto}{10}{13}[name=implementación-despliegue-remoto] \ganttnewline
+        \ganttbar[progress=today]{CLI scripts}{5}{14}[name=implementación-cli-scripts] \ganttnewline
+        \ganttbar[progress=today]{UPM RDP}{12}{14}[name=implementación-upm-rdp] \ganttnewline
+    
+        \ganttgroup[progress=today]{Pruebas}{5}{14}[name=pruebas] \ganttnewline
+        \ganttbar[progress=today]{Aceptación}{5}{14}[name=pruebas-aceptación] \ganttnewline
+
+        \ganttmilestone[progress label text=\hspace{.2cm}PT]{Entregas}{3}
+        \ganttmilestone[progress label text=\hspace{.2cm}MS]{}{10}
+        \ganttmilestone[progress label text=\hspace{.2cm}MF]{}{15}
+        \ganttmilestone[progress label text=\hspace{.2cm}PR]{}{17}
+    \end{ganttchart}
+    \caption{Diagrama de Gantt: Desarrollo}
+\end{figure}
+
+\begin{figure}[ht]
+    \label{chapters:revision:sections:revision:subsections:diagrama-gantt:figure:memoria}
+    \begin{ganttchart}[
+        include title in canvas=false,
+        expand chart=\textwidth,
+        hgrid={*1{gray, dashed}},
+        vgrid={*1{gray, dashed}},
+        title/.style={draw=none, fill=none},
+        title/.append style={opacity=.8},
+        title height=1,
+        y unit title=.7cm,
+        y unit chart=1cm,
+        group left shift=0,
+        group right shift=0,
+        group height=.0125cm,
+        group peaks height=.005cm,
+        group label font=\bfseries\small,
+        group progress label font=\scriptsize\color{black!35},
+        group/.append style={draw=black, fill=black!60},
+        group incomplete/.append style={draw=black, fill=black!15},
+        bar height=.015cm,
+        bar label font=\scriptsize,
+        bar progress label font=\scriptsize\color{black!35},
+        bar/.append style={draw=black, fill=black!30},
+        bar incomplete/.append style={fill=black!7},
+        milestone label font=\bfseries\small,
+        today label=Hoy,
+        today label font=\bfseries\scriptsize,
+        today=10,
+        progress=today,
+        progress label text={$\pgfmathprintnumber[precision=0, verbatim]{#1}\%\hspace{.1cm}completado$},
+    ]{1}{17}
+        \gantttitle[title label font=\color{black!60}]{Semana (desde el 14 de febrero)}{17} \ganttnewline
+        \gantttitlelist[y unit title=.7cm]{1,...,17}{1} \ganttnewline
+
+        \ganttgroup[progress=today]{Seguimiento}{4}{10}[name=seguimiento] \ganttnewline
+        \ganttbar[progress=today]{Revisión}{4}{7}[name=seguimiento-revisión] \ganttnewline
+        \ganttbar[progress=today]{Borrador}{7}{10}[name=seguimiento-borrador] \ganttnewline
+        \ganttbar[progress=today]{Resumen}{10}{10}[name=seguimiento-resumen] \ganttnewline
+
+        \ganttgroup[progress=today]{Final}{7}{15}[name=final] \ganttnewline
+        \ganttbar[progress=today]{Resumen}{7}{14}[name=final-resumen] \ganttnewline
+        \ganttbar[progress=today]{Introducción}{8}{11}[name=final-introducción] \ganttnewline
+        \ganttbar[progress=today]{Desarrollo}{9}{15}[name=final-desarrollo] \ganttnewline
+        \ganttbar[progress=today]{Alcance}{9}{11}[name=final-alcance] \ganttnewline
+        \ganttbar[progress=today]{Estado del Arte}{10}{12}[name=final-estado-arte] \ganttnewline
+        \ganttbar[progress=today]{Tecnologías}{10}{13}[name=final-tecnologías] \ganttnewline
+        \ganttbar[progress=today]{Requisitos}{11}{14}[name=final-requisitos] \ganttnewline
+        \ganttbar[progress=today]{Evaluación}{14}{15}[name=final-evaluación] \ganttnewline
+        \ganttbar[progress=today]{Conclusiones}{15}{15}[name=final-conclusiones] \ganttnewline
+        \ganttbar[progress=today]{Impacto}{15}{15}[name=final-impacto] \ganttnewline
+        
+        \ganttmilestone[progress label text=\hspace{.2cm}PT]{Entregas}{3}
+        \ganttmilestone[progress label text=\hspace{.2cm}MS]{}{10}
+        \ganttmilestone[progress label text=\hspace{.2cm}MF]{}{15}
+        \ganttmilestone[progress label text=\hspace{.2cm}PR]{}{17}
+    \end{ganttchart}
+    \caption{Diagrama de Gantt: Memoria}
+\end{figure}
+
+\clearpage
