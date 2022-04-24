@@ -5,16 +5,18 @@
 - [Raspberry Pi Server](#raspberry-pi-server)
   - [Index](#index)
   - [Configuration modes](#configuration-modes)
+    - [Local configuration](#local-configuration)
       - [Use case](#use-case)
       - [Automatic process](#automatic-process)
       - [Manual process](#manual-process)
+    - [Remote configuration](#remote-configuration)
       - [Use case](#use-case-1)
       - [Automatic process](#automatic-process-1)
       - [Manual process](#manual-process-1)
 
 ## Configuration modes
 
-<h3 style="background-color: blue; color: white; padding: 5px 10px">Local configuration</h3>
+### Local configuration
 
 #### Use case
 
@@ -36,7 +38,7 @@ Run script `raspi-local-manual-setup` from local machine
 pi@raspberrypi:~$
 ```
 
-<h3 style="background-color: blue; color: white; padding: 5px 10px">Remote configuration</h3>
+### Remote configuration
 
 #### Use case
 
