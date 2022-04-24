@@ -1,37 +1,26 @@
 # Raspberry Pi Server
 
----
-
 ## Index
 
 - [Raspberry Pi Server](#raspberry-pi-server)
   - [Index](#index)
   - [Configuration modes](#configuration-modes)
-  - [Local configuration](#local-configuration)
-    - [Use case](#use-case)
-    - [Automatic process](#automatic-process)
-    - [Manual process](#manual-process)
-  - [Remote configuration](#remote-configuration)
-    - [Use case](#use-case-1)
-    - [Automatic process](#automatic-process-1)
-    - [Manual process](#manual-process-1)
-
----
+      - [Use case](#use-case)
+      - [Automatic process](#automatic-process)
+      - [Manual process](#manual-process)
+      - [Use case](#use-case-1)
+      - [Automatic process](#automatic-process-1)
+      - [Manual process](#manual-process-1)
 
 ## Configuration modes
 
-1. - [Local Configuration](#local-configuration)
-2. - [Remote Configuration](#remote-configuration)
+<h3 style="background-color: blue; color: white; padding: 5px 10px">Local configuration</h3>
 
----
-
-## Local configuration
-
-### Use case
+#### Use case
 
 Local configuration is used on a Raspberry Pi connected with a keyboard and a screen, making changes directly to the server
 
-### Automatic process
+#### Automatic process
 
 Run script `raspi-local-auto-setup` from local machine
 
@@ -39,7 +28,7 @@ Run script `raspi-local-auto-setup` from local machine
 pi@raspberrypi:~$
 ```
 
-### Manual process
+#### Manual process
 
 Run script `raspi-local-manual-setup` from local machine
 
@@ -47,15 +36,13 @@ Run script `raspi-local-manual-setup` from local machine
 pi@raspberrypi:~$
 ```
 
----
+<h3 style="background-color: blue; color: white; padding: 5px 10px">Remote configuration</h3>
 
-## Remote configuration
-
-### Use case
+#### Use case
 
 Remote configuration is used on a Raspberry Pi connected to local network through ssh, making changes remotely to the server
 
-### Automatic process
+#### Automatic process
 
 Run script `raspi-remote-auto-setup` from remote machine
 
@@ -63,12 +50,10 @@ Run script `raspi-remote-auto-setup` from remote machine
 pi@raspberrypi:~$
 ```
 
-### Manual process
+#### Manual process
 
 Run script `raspi-remote-manual-setup` from remote machine
 
 ```sh
 pi@raspberrypi:~$
 ```
-
----
