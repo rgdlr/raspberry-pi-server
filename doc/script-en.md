@@ -1,11 +1,13 @@
-Local
+# Script description
+
+## Local
 
 1. Run main script
 	a. Automatic configuration
 	b. Manual configuration
 
 
-Remote
+## Remote
 
 1. Find Raspberry Pi IP
 2. Copy project to Raspberry Pi (SSH)
@@ -14,7 +16,7 @@ Remote
 	b. Manual configuration
 
 
-General Tasks
+## Main script tasks
 
 00. Install Raspbian Lite
 01. Enable SSH access (touch /boot/ssh)

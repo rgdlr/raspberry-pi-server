@@ -1,6 +1,6 @@
 # Raspberry Pi Server
 
-## Index
+## Table of contents
 
 - [Raspberry Pi Server](#raspberry-pi-server)
   - [Index](#index)
@@ -24,7 +24,7 @@ Local configuration is used on a Raspberry Pi connected with a keyboard and a sc
 
 #### Automatic process
 
-Run script `raspi-local-auto-setup` from local machine
+Run script `raspi-local-auto` from local machine
 
 ```sh
 pi@raspberrypi:~$
@@ -32,7 +32,7 @@ pi@raspberrypi:~$
 
 #### Manual process
 
-Run script `raspi-local-manual-setup` from local machine
+Run script `raspi-local-manual` from local machine
 
 ```sh
 pi@raspberrypi:~$
@@ -46,7 +46,7 @@ Remote configuration is used on a Raspberry Pi connected to local network throug
 
 #### Automatic process
 
-Run script `raspi-remote-auto-setup` from remote machine
+Run script `raspi-remote-auto` from remote machine
 
 ```sh
 pi@raspberrypi:~$
@@ -54,7 +54,7 @@ pi@raspberrypi:~$
 
 #### Manual process
 
-Run script `raspi-remote-manual-setup` from remote machine
+Run script `raspi-remote-manual` from remote machine
 
 ```sh
 pi@raspberrypi:~$
