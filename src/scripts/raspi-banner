@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# SSH LOGIN BANNER
+# touch .hushlogin
+# clear -x
+
+clear
+DATE=$(date +"%A, %e %B %Y, %r")
+MACHINE=$(uname -srmo)
+
+LAST_LOGIN=$(last | grep $(whoami) | head -n2 | tail -n1 | awk '{print $4, $5, $6, $7, "from", $3}')
+ACTIVE_USERS=$(netstat | grep ssh | grep ESTABLISHED | wc -l)
+
+let uptime="$(cut -d'.' -f1 /proc/uptime)"
+let seconds=$((${uptime}%60))
+let minutes=$((${uptime}/60%60))
+let hours=$((${uptime}/3600%24))
+let days=$((${uptime}/86400))
+UPTIME=$(printf "%d days %02d hours %02d minutes %02d seconds" "$days" "$hours" "$minutes" "$seconds")
+
+MEMMORY_SIZE=$(cat /proc/meminfo | grep MemTotal | awk {'print $2/1024'})
+MEMMORY_USED=$(free -h --si | grep Mem | awk '{print $3}')
+MEMMORY_FREE=$(free -h --si | grep Mem | awk '{print $4}')
+MEMMORY_AVAILABLE=$(free -h --si | grep Mem | awk '{print $7}')
+MEMMORY="${MEMMORY_USED} | ${MEMMORY_SIZE}MB"
+
+DISK_SIZE=$(df -h | grep /dev/root | awk '{print $2}')
+DISK_USED=$(df -h | grep /dev/root | awk '{print $3}')
+DISK_AVAILABLE=$(df -h | grep /dev/root | awk '{print $4}')
+DISK="${DISK_USED} | ${DISK_SIZE}"
+
+read LOAD_ONE LOAD_FIVE LOAD_FIFTEEN REST < /proc/loadavg
+LOAD_AVERAGE="${LOAD_ONE} | ${LOAD_FIVE} | ${LOAD_FIFTEEN}"
+
+PROCESSES_RUNNING=$(ps r --no-headers | wc -l)
+PROCESSES_AUX=$(ps aux --no-headers | wc -l)
+PROCESSES="${PROCESSES_RUNNING} | ${PROCESSES_AUX}"
+
+PRIVATE_IP=$(hostname -I | awk '{print $1}')
+PUBLIC_IP=$(curl -s http://icanhazip.com)
+IP_ADDRESSES="${PRIVATE_IP} | ${PUBLIC_IP}"
+
+echo "$(tput bold)$(tput setaf 2)"
+echo "  ⠀⢀⣠⣤⣶⣶⣶⣤⣄⠀⠀⣀⣤⣶⣶⣶⣤⣄⡀⠀  │  "
+echo "  ⠀⢸⣿⠁⠀⠀⠀⠀⠙⢷⡾⠋⠀⠀⠀⠀⠈⣿⡇⠀  │  $(tput setaf 2)${DATE}"
+echo " ⠀ ⠘⢿⡆⠀⠀⠀⠢⣄⣼⣧⣠⠔⠀⠀⠀⢰⡿⠃⠀  │  $(tput setaf 2)${MACHINE}"
+echo "⠀ ⠀ ⠈⠻⣧⣤⣀⣤⣾⣿⣿⣷⣤⣀⣤⣼⠟⠁⠀⠀  │  "
+echo -n "$(tput setaf 1)"
+echo "⠀  ⠀⣰⡾⠋⠉⣩⣟⠁⠀⠀⠈⣻⣍⠉⠙⢷⣆⠀⠀  │  "
+echo "  ⠀⢀⣿⣀⣤⡾⠛⠛⠷⣶⣶⠾⠛⠛⢷⣤⣀⣿⡀⠀  │  $(tput setaf 1)Last login....: ${LAST_LOGIN}"
+echo "  ⣰⡟⠉⣿⡏⠀⠀⠀⠀⢹⡏⠀⠀⠀⠀⢹⣿⠉⢻⣆  │  $(tput setaf 1)Uptime........: ${UPTIME}"
+echo "  ⣿⡇⠀⣿⣇⠀⠀⠀⣠⣿⣿⣄⠀⠀⠀⣸⣿⠀⢸⣿  │  $(tput setaf 1)Memory Usage..: ${MEMMORY}"
+echo "  ⠙⣷⣼⠟⠻⣿⣿⡿⠋⠁⠈⠙⢿⣿⣿⠟⠻⣧⣾⠋  │  $(tput setaf 1)Disk Usage....: ${DISK}"
+echo "  ⠀⢸⣿⠀⠀⠈⢿⡇⠀⠀⠀⠀⢸⡿⠁⠀⠀⣿⡇⠀  │  $(tput setaf 1)Load Average..: ${LOAD_AVERAGE}"
+echo "⠀  ⠀⠻⣧⣀⣀⣸⣿⣶⣤⣤⣶⣿⣇⣀⣀⣼⠟⠀⠀  │  $(tput setaf 1)Processes.....: ${PROCESSES}"
+echo "⠀⠀  ⠀⠈⠛⢿⣿⣿⡀⠀⠀⢀⣿⣿⡿⠛⠁⠀⠀⠀  │  $(tput setaf 1)IP Addresses..: ${IP_ADDRESSES}"
+echo "⠀⠀⠀  ⠀⠀⠀⠀⠙⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀  │  "
+echo "$(tput sgr0)"
