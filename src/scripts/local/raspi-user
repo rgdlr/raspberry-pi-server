@@ -1,0 +1,9 @@
+#!/bin/bash
+
+read USER
+adduser $USER
+adduser $USER sudo
+
+# Delete and lock root password
+sudo passwd -d root
+sudo passwd -l root
