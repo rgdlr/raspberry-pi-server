@@ -3,6 +3,10 @@
 # Install firewall
 sudo apt install ufw -y
 
+# Update iptables
+# update-alternatives --list iptables
+# sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+
 # Limit ssh connections through firewall
 sudo ufw limit 22
 sudo ufw enable

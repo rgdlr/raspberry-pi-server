@@ -62,7 +62,7 @@ echo "  │  ⠙⣷⣼⠟⠻⣿⣿⡿⠋⠁⠈⠙⢿⣿⣿⠟⠻⣧⣾⠋  │ 
 echo "  │   ⢸⣿⠀⠀⠈⢿⡇⠀⠀⠀⠀⢸⡿⠁⠀⠀⣿⡇⠀  │  $(tput setaf 1)Disk Usage....: ${DISK}"
 echo "  │⠀   ⠻⣧⣀⣀⣸⣿⣶⣤⣤⣶⣿⣇⣀⣀⣼⠟⠀⠀  │  $(tput setaf 1)Processes.....: ${PROCESSES}"
 echo "  │     ⠈⠛⢿⣿⣿⡀⠀⠀⢀⣿⣿⡿⠛⠁⠀⠀⠀  │  $(tput setaf 1)Load Average..: ${LOAD_AVERAGE}"
-echo "  │⠀⠀⠀     ⠙⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀   │  $(tput setaf 1)IP Addresses..: ${IP_ADDRESSES}"
+echo "  │⠀⠀⠀      ⠙⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀   │  $(tput setaf 1)IP Addresses..: ${IP_ADDRESSES}"
 echo "  └────────────────────────┘  "
 echo "$(tput sgr0)"
 
