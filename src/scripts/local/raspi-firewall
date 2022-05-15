@@ -7,6 +7,11 @@ sudo apt install ufw -y
 # update-alternatives --list iptables
 # sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
 
+# Update kernel
+# sudo raspi-update
+
 # Limit ssh connections through firewall
 sudo ufw limit 22
+sudo ufw limit 80
+sudo ufw limit 443
 sudo ufw enable

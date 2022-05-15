@@ -1,0 +1,15 @@
+#!/bin/bash
+
+URL=rgdlr.sytes.net
+
+# Install certbot
+sudo apt-get install python3-certbot-nginx -y
+
+# Configure certificate (automatically reconfigures nginx)
+sudo certbot --nginx -d $URL
+
+# Renewal test
+sudo certbot renew --dry-run
+
+# Renewal (valid for 90 days)
+# sudo certbot renew

@@ -5,31 +5,24 @@ URL=rgdlr.sytes.net
 # Install nginx
 sudo apt-get install nginx -y
 
-# Create and configure folder for nginx source code
+# Create folder for nginx source code
 sudo mkdir /var/www/$URL
 sudo chmod 755 -R /var/www/$URL
 sudo chown -R $(whoami):www-data /var/www/$URL
 
-#server {
-#   listen 80;
-#   listen [::]:80;
-#
-#   server_name example.com;
-#
-#   root /var/www/example.com;
-#   index index.html;
-#
-#   location / {
-#       try_files $uri $uri/ =404;
-#   }
-#}
-
+# Configure server site (later modified by certbot ssl)
 echo "server {
 	listen 80;
 	listen [::]:80;
 
+	server_name  www.$URL;
+
 	root /var/www/$URL;
 	index index.html;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
 }" | sudo tee -a /etc/nginx/sites-available/$URL
 
 
