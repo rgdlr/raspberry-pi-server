@@ -1,10 +1,11 @@
 #!/bin/bash
 
-echo "Switching to branch master"
-git checkout master
+# Tech With Tim (How To Deploy A React-App - Using NGINX & Linux)
+
+URL=rgdlr.sytes.net
 
 echo "Building app"
 npm run build
 
 echo "Deploying files to server"
-scp -r build/* pi@rgdlr.sytes.net:/var/www/rgdlr.sytes.net
+scp -r build/* pi@$URL:/var/www/$URL
