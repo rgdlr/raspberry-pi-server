@@ -21,7 +21,10 @@ echo "server {
 	index index.html;
 
 	location / {
-		try_files $uri $uri/ =404;
+		# try_files $uri $uri/ =404;
+		if (!-e $request_filename){
+			rewrite ^(.*)$ /index.html break;
+		}
 	}
 }" | sudo tee -a /etc/nginx/sites-available/$URL
 

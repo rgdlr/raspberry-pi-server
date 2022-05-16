@@ -14,4 +14,9 @@ sudo apt install ufw -y
 sudo ufw limit 22
 sudo ufw limit 80
 sudo ufw limit 443
+sudo ufw limit 22022
+sudo ufw limit 44380
 sudo ufw enable
+
+# Show ufw status
+# sudo ufw status

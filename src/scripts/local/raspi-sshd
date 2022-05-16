@@ -2,15 +2,37 @@
 
 # Disable ssh login through user and password
 cat /etc/ssh/sshd_config \
+	| sed 's/Port 22/Port 22022/' \
+	| sed 's/#Port 22022/Port 22022/' \
 	| sed 's/PasswordAuthentication yes/PasswordAuthentication no/' \
 	| sed 's/#PasswordAuthentication no/PasswordAuthentication no/' \
 	| sed 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' \
 	| sed 's/#ChallengeResponseAuthentication no/ChallengeResponseAuthentication no/' \
 	| sed 's/UsePAM yes/UsePAM no/' \
-	| sed 's/#UsePAM no/UsePAM no/' \
+	| sed 's/#UsePAM yes/UsePAM yes/' \
+	| sed 's/PermitRootLogin prohibit-password/PermitRootLogin no/' \
+	| sed 's/#PermitRootLogin no/PermitRootLogin no/' \
+	| sed 's/MaxAuthTries 6/MaxAuthTries 1/' \
+	| sed 's/#MaxAuthTries 1/MaxAuthTries 1/' \
+	| sed 's/StrictModes no/StrictModes yes/' \
+	| sed 's/#StrictModes yes/StrictModes yes/' \
+	| sed 's/MaxStartups 10:30:100/MaxStartups 1/' \
+	| sed 's/#MaxStartups 1/MaxStartups 1/' \
+	| sed 's/LoginGraceTime 2m/LoginGraceTime 0/' \
+	| sed 's/#LoginGraceTime 0/LoginGraceTime 0/' \
+	| sed 's/ClientAliveInterval 0/ClientAliveInterval 600/' \
+	| sed 's/#ClientAliveInterval 600/ClientAliveInterval 600/' \
+	| sed 's/ClientAliveCountMax 3/ClientAliveCountMax 0/' \
+	| sed 's/#ClientAliveCountMax 0/ClientAliveCountMax 0/' \
+	| sed 's/X11Forwarding yes/X11Forwarding no/' \
+	| sed 's/#X11Forwarding no/X11Forwarding no/' \
+	| sed 's/PubkeyAuthentication no/PubkeyAuthentication yes/' \
+	| sed 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' \
 	> sshd_config \
+	&& echo -e "\nProtocol 2\nAllowUsers pi\nAllowGroups pi" >> sshd_config \
 	&& sudo chown root:root sshd_config \
 	&& sudo mv sshd_config /etc/ssh/sshd_config
 
 # Restart ssh service
 sudo systemctl restart ssh.service
+sudo systemctl restart sshd.service
