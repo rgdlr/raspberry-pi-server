@@ -12,8 +12,8 @@ SHELL_VERSION=$(echo $BASH_VERSION | cut -d'(' -f1)
 SHELL_INFO="Shell ${SHELL} ${SHELL_VERSION}"
 
 LAST_LOGIN=$(last | grep $(whoami) | head -n2 | tail -n1 | awk '{print $4, $5, $6, $7, "from", $3}')
-SSH_USERS=$(netstat | grep ssh | grep ESTABLISHED | wc -l)
-SSH_USERS_IP=$(netstat | grep ssh | awk '{print $5}' | cut -d':' -f1 | awk '{print}' ORS=', ' | sed 's/.\{2\}$//')
+SSH_USERS=$(netstat | grep 22022 | grep ESTABLISHED | wc -l)
+SSH_USERS_IP=$(netstat | grep 22022 | awk '{print $5}' | cut -d':' -f1 | awk '{print}' ORS=', ' | sed 's/.\{2\}$//')
 ACTIVE_USERS="${SSH_USERS} from ${SSH_USERS_IP}"
 
 let uptime="$(cut -d'.' -f1 /proc/uptime)"
