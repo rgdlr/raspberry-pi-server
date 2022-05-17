@@ -5,6 +5,7 @@
 # clear -x
 
 clear
+
 DATE=$(date +"%A, %e %B %Y, %r")
 MACHINE=$(uname -srmo)
 SHELL=$(echo $SHELL | rev | cut -d'/' -f1 | rev)
@@ -34,7 +35,7 @@ DISK_USED=$(df -h | grep /dev/root | awk '{print $3}')
 DISK_AVAILABLE=$(df -h | grep /dev/root | awk '{print $4}')
 DISK="${DISK_USED} | ${DISK_SIZE}"
 
-PROCESSES_RUNNING=$(ps r --no-headers | wc -l)
+PROCESSES_RUNNING=$(ps -u $(whoami) --no-headers | wc -l)
 PROCESSES_AUX=$(ps aux --no-headers | wc -l)
 PROCESSES="${PROCESSES_RUNNING} | ${PROCESSES_AUX}"
 
