@@ -1,3 +1,8 @@
 #!/bin/bash
 
-# ...
+# Show message
+echo "You can get your DDNS URL at https://www.noip.com"
+
+read -p "DDNS URL: " URL
+
+echo "DDNS URL: $URL"

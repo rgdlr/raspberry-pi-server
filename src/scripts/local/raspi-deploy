@@ -4,6 +4,8 @@
 
 URL=rgdlr.sytes.net
 
+read -p "DDNS URL: " URL
+
 echo "Building app"
 npm run build
 
