@@ -1,4 +1,4 @@
-#/bin/bash
+1#/bin/bash
 
 echo -e "\e[32m  _____       \e[31m _____                          "
 echo -e "\e[32m |  __ \      \e[31m/ ____|                         "
@@ -14,7 +14,11 @@ echo " · Packages : dependencies installation"
 echo " · DDNS URL : IP tracking and public access"
 echo " · SSH Keys : secure access to server"
 echo " · Router   : public access"
+echo " · Root     : system install and configure"
 echo -e "\e[0m"
+
+sudo echo -n ""
+echo -ne "\e[1A\e[K"
 
 echo ""
 echo -e " \e[34mInstall:\e[36m packages\e[0m"
@@ -85,3 +89,5 @@ echo ""
 echo ""
 echo -e "\e[35m 🎉 Installation completed! 🎉\e[0m"
 echo ""
+
+exit 0

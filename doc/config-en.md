@@ -1,13 +1,12 @@
 # Raspberry Pi Server
 
 ```
-  _____        _____                          
- |  __ \      / ____|                         
- | |__) |____| (___   ___ _ ____   _____ _ __ 
- |  _  (  __  )___ \ / _ \ '__\ \ / / _ \ '__|
- | | \ \| || |____) |  __/ |   \ V /  __/ |   
- |_|  \_\_||_|_____/ \___|_|    \_/ \___|_|   
-
+     _____        _____                          
+    |  __ \      / ____|                         
+    | |__) |____| (___   ___ _ ____   _____ _ __ 
+    |  _  (  __  )___ \ / _ \ '__\ \ / / _ \ '__|
+    | | \ \| || |____) |  __/ |   \ V /  __/ |   
+    |_|  \_\_||_|_____/ \___|_|    \_/ \___|_|   
 ```
 
 ## Table of contents
@@ -29,10 +28,10 @@
 
 ### Main configuration
 
-Run script `raspi-server` from Raspberry Pi
+Run script `raspberry-pi-server-install` from repository root from Raspberry Pi
 
 ```sh
-pi@raspberrypi:~$ bash raspi-server
+pi@raspberrypi:~$ ./raspberry-pi-server-install
 ```
 
 ### Local configuration
