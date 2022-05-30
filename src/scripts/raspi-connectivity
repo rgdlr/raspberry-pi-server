@@ -1,5 +1,16 @@
 #!/bin/bash
 
-# Disable bluetooth and wifi on startup
-echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local
-echo "rfkill block wifi" | sudo tee -a /etc/rc.local
+# Connectivity advice
+echo " ℹ️  It is recommended to disable BT and WiFi for energy saving"
+while [ "$CONNECTIVITY" != "y" ] && [ "$CONNECTIVITY" != "Y" ] && [ "$CONNECTIVITY" != "n" ] && [ "$CONNECTIVITY" != "n" ]; do
+    echo -n " ❔ Would yo like to disable connectivity? (y/n): " && read CONNECTIVITY
+
+    if [ "$CONNECTIVITY" == "n" ] || [ "$CONNECTIVITY" == "N" ]; then
+        echo -n ""
+    elif [ "$CONNECTIVITY" == "y" ] || [ "$CONNECTIVITY" == "Y" ]; then
+		echo "rfkill block bluetooth" | sudo tee -a /etc/rc.local
+		echo "rfkill block wifi" | sudo tee -a /etc/rc.local
+    else
+        echo -ne "\e[1A\e[K"
+    fi
+done

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Disable ssh login through user and password
+echo " ⏳ SSH configuration"
 cat /etc/ssh/sshd_config \
 	| sed 's/Port 22/Port 22022/' \
 	| sed 's/#Port 22022/Port 22022/' \
@@ -33,6 +34,15 @@ cat /etc/ssh/sshd_config \
 	&& sudo chown root:root sshd_config \
 	&& sudo mv sshd_config /etc/ssh/sshd_config
 
+sleep 1
+echo -ne "\e[1A\e[K"
+echo " ✅ SSH configuration"
+
 # Restart ssh service
-sudo systemctl restart ssh.service
-sudo systemctl restart sshd.service
+echo " ⏳ SSH service restart"
+sudo systemctl restart ssh.service 1> /dev/null 2> /dev/null
+sudo systemctl restart sshd.service 1> /dev/null 2> /dev/null
+
+sleep 1
+echo -ne "\e[1A\e[K"
+echo " ✅ SSH service restart"

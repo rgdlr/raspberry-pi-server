@@ -1,36 +1,70 @@
 #!/bin/bash
 
-URL=rgdlr.sytes.net
+if [ -z "$DDNS_URL" ]; then
+    while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "n" ]; do
+        echo -n " ❔ Do you have a DDNS URL? (y/n): " && read DDNS
+
+        if [ "$DDNS" == "n" ] || [ "$DDNS" == "N" ]; then
+            # Network Public IP
+            PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+            echo " ℹ️  Your public IP is $PUBLIC_IP"
+            echo " ℹ️  You can get your DDNS URL at https://www.noip.com"
+            echo " ℹ️  Check documentation to stablish DDNS connection in router"
+            exit 1
+        elif [ "$DDNS" == "y" ] || [ "$DDNS" == "Y" ]; then
+            while [ -z $DDNS_URL_PING ] || [ $DDNS_URL_PING -ne 0 ]; do
+                echo -ne " ❔ DDNS URL: \e[33m" && read DDNS_URL
+                ping -c 1 $DDNS_URL 1> /dev/null 2> /dev/null
+                DDNS_URL_PING=$?
+                if [ $DDNS_URL_PING -ne 0 ]; then
+                    echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[31m$DDNS_URL\e[0m"
+                    sleep 2 && echo -ne "\r\e[K\e[0m"
+                else
+                    echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[32m$DDNS_URL\e[0m"
+                    export DDNS_URL
+                fi
+            done
+        else
+            echo -ne "\e[1A\e[K"
+        fi
+    done
+fi
 
 # Install nginx
-sudo apt-get install nginx -y
+echo " ⏳ Web server install"
+sudo apt-get install nginx -y 1> /dev/null 2> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Web server install"
 
 # Create folder for nginx source code
-sudo mkdir /var/www/$URL
-sudo chmod 755 -R /var/www/$URL
-sudo chown -R $(whoami):www-data /var/www/$URL
+echo " ⏳ Web server create"
+sudo mkdir /var/www/$DDNS_URL 1> /dev/null
+sudo chmod 755 -R /var/www/$DDNS_URL 1> /dev/null
+sudo chown -R $(whoami):www-data /var/www/$DDNS_URL 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Web server create"
 
 # Configure server site (later modified by certbot ssl)
 echo "server {
-	listen 80;
+    listen 80;
 
-	server_name  www.$URL;
+    server_name  www.$DDNS_URL;
 
-	location / {
+    location / {
         add_header Cache-Control "no-store, no-cache, must-revalidate, post-check=0, pre-check=0";
 
-		root /var/www/$URL;
-		index index.html;
+        root /var/www/$DDNS_URL;
+        index index.html;
 
 #		if (!-e $request_filename){
 #			rewrite ^(.*)$ /index.html break;
 #		}
 
-		try_files $uri $uri/ =404;
-	}
+        try_files $uri $uri/ =404;
+    }
 
-	location /api/v1 {
-		proxy_set_header 'Access-Control-Allow-Origin' \'http://$URL\';
+    location /api/v1 {
+        proxy_set_header 'Access-Control-Allow-Origin' \'http://$DDNS_URL\';
         proxy_set_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE';
         proxy_set_header 'Access-Control-Allow-Headers' 'X-Requested-With,Accept,Content-Type, Origin';
 
@@ -41,17 +75,22 @@ echo "server {
         proxy_set_header	Host			$host;
         proxy_set_header	X-Real-IP		$remote_addr;
         proxy_set_header	X-Forwarded-For	$proxy_add_x_forwarded_for;
-        proxy_set_header	origin			\'http://$URL\';
-	}
-}" | sudo tee -a /etc/nginx/sites-available/$URL
-
+        proxy_set_header	origin			\'http://$DDNS_URL\';
+    }
+}" | sudo tee -a /etc/nginx/sites-available/$DDNS_URL
 
 # Test configuration
-sudo nginx -t
+# sudo nginx -t
 
 # Set configuration as default
-sudo unlink /etc/nginx/sites-enabled/default
-sudo ln -s /etc/nginx/sites-available/$URL /etc/nginx/sites-enabled
+echo " ⏳ Web server configuration"
+sudo unlink /etc/nginx/sites-enabled/default 1> /dev/null 2> /dev/null
+sudo ln -s /etc/nginx/sites-available/$DDNS_URL /etc/nginx/sites-enabled 1> /dev/null 2> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Web server configuration"
 
 # Restart nginx
-sudo systemctl restart nginx
+echo " ⏳ Web server restart"
+sudo systemctl restart nginx 1> /dev/null 2> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Web server restart"

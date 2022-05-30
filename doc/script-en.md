@@ -32,5 +32,5 @@
 11. Allow port 22 in firewall for SSH connection
 12. Disable wifi (if using ethernet) and bluetooth by default on startup for lower power consumption
 13. Get public IP
-14. Use ddns service to make Raspberry Pi easily accesible from the internet through a custom domain
-15. 
+14. Use DDNS service to make Raspberry Pi easily accessible from the internet through a custom domain
+15. ...

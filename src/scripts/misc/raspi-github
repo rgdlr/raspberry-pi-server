@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install git
-sudo apt install git -y
+sudo apt-get install git -y
 
 # Create github directory
 mkdir -p $HOME/git/github

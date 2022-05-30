@@ -8,11 +8,10 @@ RASPBERRY_PASSWORD=raspberry
 RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $1;}')
 
 # Prompt
-# echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
+echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
 
 # Hosts
 # echo -e "$RASPBERRY_IP\traspberry" | sudo tee -a /etc/hosts
-
 
 # Raspberry Pi: ssh connection
 ssh $RASPBERRY_USER@$RASPBERRY_IP

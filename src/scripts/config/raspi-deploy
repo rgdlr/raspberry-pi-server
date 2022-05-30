@@ -1,0 +1,24 @@
+#!/bin/bash
+
+while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "n" ]; do
+    echo -n "Do you have a DDNS URL? (y/n): " && read DDNS
+
+    if [ "$DDNS" == "n" ] || [ "$DDNS" == "N" ]; then
+		echo "You can get your DDNS URL at https://www.noip.com"
+		# Network Public IP
+		PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+		echo "Your public IP is $PUBLIC_IP"
+		echo "Check documentation to stablish DDNS connection in router"
+        exit 1
+    elif [ "$DDNS" == "y" ] || [ "$DDNS" == "Y" ]; then
+        echo -n "DDNS URL: " && read DDNS_URL
+
+        echo "Building app"
+        npm run build
+
+        echo "Deploying files to server"
+        scp -r build/* pi@$DDNS_URL:/var/www/$DDNS_URL
+    else
+        echo -ne "\e[1A\e[K"
+    fi
+done

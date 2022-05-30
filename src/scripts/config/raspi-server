@@ -1,0 +1,87 @@
+#/bin/bash
+
+echo -e "\e[32m  _____       \e[31m _____                          "
+echo -e "\e[32m |  __ \      \e[31m/ ____|                         "
+echo -e "\e[32m | |__) |____\e[31m| (___   ___ _ ____   _____ _ __ "
+echo -e "\e[32m |  _  (  __  )\e[31m___ \ / _ \ '__\ \ / / _ \ '__|"
+echo -e "\e[32m | | \ \| || |\e[31m____) |  __/ |   \ V /  __/ |   "
+echo -e "\e[32m |_|  \_\_||_|\e[31m_____/ \___|_|    \_/ \___|_|   "
+echo -e "\e[32m              \e[31m                                \e[0m"
+
+echo -e "\e[33m"
+echo " Required information for server configuration"
+echo " · Packages : dependencies installation"
+echo " · DDNS URL : IP tracking and public access"
+echo " · SSH Keys : secure access to server"
+echo " · Router   : public access"
+echo -e "\e[0m"
+
+echo ""
+echo -e " \e[34mInstall:\e[36m packages\e[0m"
+echo ""
+source ../raspi-update
+echo ""
+
+echo ""
+echo -e " \e[34mConfiguration:\e[36m DDNS\e[0m"
+echo ""
+source ../raspi-ddns
+echo ""
+
+echo ""
+echo -e " \e[34mConfiguration:\e[36m SSH keys\e[0m"
+echo ""
+source ../raspi-sshkeys
+echo ""
+
+echo ""
+echo -e " \e[34mConfiguration:\e[36m SSH server\e[0m"
+echo ""
+source ../raspi-sshd
+echo ""
+
+echo ""
+echo -e " \e[34mConfiguration:\e[36m firewall\e[0m"
+echo ""
+source ../raspi-firewall
+echo ""
+
+echo ""
+echo -e " \e[34mConfiguration:\e[36m static IP\e[0m"
+echo ""
+source ../raspi-static
+echo ""
+
+echo ""
+echo -e " \e[34mConfiguration:\e[36m connectivity\e[0m"
+echo ""
+source ../raspi-connectivity
+echo ""
+
+echo ""
+echo -e " \e[34mInstall:\e[36m database\e[0m"
+echo ""
+source ../raspi-mongodb
+echo ""
+
+echo ""
+echo -e " \e[34mInstall:\e[36m web server\e[0m"
+echo ""
+source ../raspi-nginx
+echo ""
+
+echo ""
+echo -e " \e[34mInstall:\e[36m backend tools\e[0m"
+echo ""
+source ../raspi-node
+echo ""
+
+echo ""
+echo -e " \e[34mInstall:\e[36m SSL certificate\e[0m"
+echo ""
+source ../raspi-ssl
+echo ""
+
+echo ""
+echo -e "\e[35m 🎉 Installation completed! 🎉\e[0m"
+echo ""

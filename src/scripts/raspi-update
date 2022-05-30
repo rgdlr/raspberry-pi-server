@@ -1,7 +1,27 @@
 #!/bin/bash
 
 # Update Raspberry
-sudo apt udpdate
-sudo apt upgrade -y
-sudo apt full-upgrade -y
-sudo apt dist-upgrade -y
+echo " ⏳ Packages update"
+sudo apt-get update 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Packages update"
+
+echo " ⏳ Packages upgrade"
+sudo apt-get upgrade -y 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Packages upgrade"
+
+echo " ⏳ Full upgrade"
+sudo apt-get full-upgrade -y 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Full upgrade"
+
+echo " ⏳ Dist upgrade"
+sudo apt-get dist-upgrade -y 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Dist upgrade"
+
+echo " ⏳ Autoremove"
+sudo apt-get autoremove -y 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Autoremove"

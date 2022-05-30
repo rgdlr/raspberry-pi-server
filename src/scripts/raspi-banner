@@ -66,4 +66,3 @@ echo "  │     ⠈⠛⢿⣿⣿⡀⠀⠀⢀⣿⣿⡿⠛⠁⠀⠀⠀  │  $(tpu
 echo "  │⠀⠀⠀      ⠙⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀   │  $(tput setaf 1)IP Addresses..: ${IP_ADDRESSES}"
 echo "  └────────────────────────┘  "
 echo "$(tput sgr0)"
-

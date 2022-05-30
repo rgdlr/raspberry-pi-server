@@ -1,15 +1,49 @@
 #!/bin/bash
 
-URL=rgdlr.sytes.net
+if [ -z "$DDNS_URL" ]; then
+    while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "n" ]; do
+        echo -n " ❔ Do you have a DDNS URL? (y/n): " && read DDNS
+
+        if [ "$DDNS" == "n" ] || [ "$DDNS" == "N" ]; then
+            # Network Public IP
+            PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+            echo " ℹ️  Your public IP is $PUBLIC_IP"
+            echo " ℹ️  You can get your DDNS URL at https://www.noip.com"
+            echo " ℹ️  Check documentation to stablish DDNS connection in router"
+            exit 1
+        elif [ "$DDNS" == "y" ] || [ "$DDNS" == "Y" ]; then
+            while [ -z $DDNS_URL_PING ] || [ $DDNS_URL_PING -ne 0 ]; do
+                echo -ne " ❔ DDNS URL: \e[33m" && read DDNS_URL
+                ping -c 1 $DDNS_URL 1> /dev/null 2> /dev/null
+                DDNS_URL_PING=$?
+                if [ $DDNS_URL_PING -ne 0 ]; then
+                    echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[31m$DDNS_URL\e[0m"
+                    sleep 2 && echo -ne "\r\e[K\e[0m"
+                else
+                    echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[32m$DDNS_URL\e[0m"
+                    export DDNS_URL
+                fi
+            done
+        else
+            echo -ne "\e[1A\e[K"
+        fi
+    done
+fi
 
 # Install certbot
+echo " ⏳ SSL certificate install"
 sudo apt-get install python3-certbot-nginx -y
+echo -ne "\e[1A\e[K"
+echo " ✅ SSL certificate install"
 
 # Configure certificate (automatically reconfigures nginx)
-sudo certbot --nginx -d $URL
+echo " ⏳ SSL certificate configuration"
+sudo certbot --nginx -d $DDNS_URL
+echo -ne "\e[1A\e[K"
+echo " ✅ SSL certificate configuration"
 
 # Renewal test
-sudo certbot renew --dry-run
+# sudo certbot renew --dry-run
 
 # Renewal (valid for 90 days)
 # sudo certbot renew

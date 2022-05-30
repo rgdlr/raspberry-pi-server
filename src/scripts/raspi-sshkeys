@@ -1,20 +1,57 @@
 #!/bin/bash
 
-# Create ssh keys
-ssh-keygen
+# Check SSH keys and agent
+while [ "$SSH_KEY" != "y" ] && [ "$SSH_KEY" != "Y" ] && [ "$SSH_KEY" != "n" ] && [ "$SSH_KEY" != "n" ]; do
+    echo -n " ❔ Do you have a SSH key? (y/n): " && read SSH_KEY
 
-# Create ssh agent
-eval `ssh-agent`
+    if [ "$SSH_KEY" == "n" ] || [ "$SSH_KEY" == "N" ]; then
+        ssh-keygen
+		eval `ssh-agent`
+	elif [ "$SSH_KEY" == "y" ] || [ "$SSH_KEY" == "Y" ]; then
+		echo -n ""
+	else
+		echo -ne "\e[1A\e[K"
+    fi
+done
 
-# Raspberry Pi: default user and password
-RASPBERRY_USER=pi
-RASPBERRY_PASSWORD=raspberry
+# Install arp-scan
+echo " ⏳ Network tools install"
+sudo apt-get install arp-scan 1> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Network tools install"
 
 # Raspberry Pi: IP address
+echo " 🔎 Raspberry Pi search"
 RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $1;}')
 
-# Prompt
-# echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
+if [ -z "$RASPBERRY_IP" ]; then
+	echo -ne "\e[1A\e[K"
+	echo " ❎ Raspberry Pi search"
+	exit 1
+else
+	echo -ne "\e[1A\e[K"
+	echo " ✅ Raspberry Pi search"
+	export RASPBERRY_IP
 
-# Set up acces using ssh key
-ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP 1> /dev/null 2> /dev/null
+	# Raspberry Pi: default user and password
+	RASPBERRY_USER=pi
+	RASPBERRY_PASSWORD=raspberry
+
+	# echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
+	echo "    ℹ️  User     : $RASPBERRY_USER"
+	echo "    ℹ️  Password : $RASPBERRY_PASSWORD"
+	echo "    ℹ️  IP       : $RASPBERRY_IP"
+
+	# Set up acces using ssh key
+	echo " 📤 Send SSH key to Raspberry"
+	ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP 1> /dev/null
+
+	if [ $? -ne 0 ]; then
+		echo -ne "\e[1A\e[K"
+		echo " ❎ SSH key key to Raspberry"
+		exit 1
+	else
+		echo -ne "\e[1A\e[K"
+		echo " ✅ Send SSH key to Raspberry"
+	fi
+fi

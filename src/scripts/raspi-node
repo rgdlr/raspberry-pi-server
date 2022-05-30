@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Install nvm
-curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+echo " ⏳ Backend tools install"
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash 1> /dev/null 2> /dev/null
 
 # Install nodejs
-nvm install --lts
+nvm install --lts 1> /dev/null 2> /dev/null
+echo -ne "\e[1A\e[K"
+echo " ✅ Backend tools install"

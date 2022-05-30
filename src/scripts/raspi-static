@@ -11,9 +11,44 @@ LAN_IP=$(hostname -I | awk '{print $1}')
 LAN_MASK=$(ip -f inet -o a s scope global | grep -Po 'inet \S+' | sed 's#.*/\(.*\)#\1#' | head -n1)
 LAN_IF=$(ip -o a | grep link | awk '{print $2}')
 
-# Raspberry IP
-RASPBERRY_IP=192.168.1.3
-RASPBERRY_MASK=24
+if [ -z "$RASPBERRY_IP" ]; then
+    # Raspberry IP
+    echo " 🔎 Raspberry Pi search"
+    RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $1;}')
+    RASPBERRY_MASK=24
+    if [ -z "$RASPBERRY_IP" ]; then
+        echo -ne "\e[1A\e[K"
+        echo " ❎ Raspberry Pi search"
+        exit 1
+    else
+        echo -ne "\e[1A\e[K"
+	    echo " ✅ Raspberry Pi search"
+    fi
+fi
+
+echo " ℹ️  Default Raspberry Pi IP: $RASPBERRY_IP"
+while [ "$STATIC_IP" != "y" ] && [ "$STATIC_IP" != "Y" ] && [ "$STATIC_IP" != "n" ] && [ "$STATIC_IP" != "n" ]; do
+    echo -n " ❔ Change Raspberry Pi IP? (y/n): " && read STATIC_IP
+
+    if [ "$STATIC_IP" == "n" ] || [ "$STATIC_IP" == "N" ]; then
+        echo -n ""
+    elif [ "$STATIC_IP" == "y" ] || [ "$STATIC_IP" == "Y" ]; then
+        while [ -z $RASPBERRY_IP_PING ] || [ $RASPBERRY_IP_PING -ne 0 ]; do
+            echo -ne " ❔ Raspberry Pi static IP: \e[33m" && read RASPBERRY_IP
+            ping -c 1 $RASPBERRY_IP 1> /dev/null 2> /dev/null
+            RASPBERRY_IP_PING=$?
+            if [ $RASPBERRY_IP_PING -ne 0 ]; then
+                echo -ne "\e[1A\e[K\e[0m ❔ Raspberry Pi static IP: \e[31m$RASPBERRY_IP\e[0m"
+                sleep 2 && echo -ne "\r\e[K\e[0m"
+            else
+                echo -ne "\e[1A\e[K\e[0m ❔ Raspberry Pi static IP: \e[32m$RASPBERRY_IP\e[0m"
+                export RASPBERRY_IP
+            fi
+        done
+    else
+        echo -ne "\e[1A\e[K"
+    fi
+done
 
 # Raspberry IF
 RASPBERRY_IF=eth0
