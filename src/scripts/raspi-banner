@@ -4,6 +4,11 @@
 # touch .hushlogin
 # clear -x
 
+# .bashrc append
+# if [ -n "$PS1" ]; then
+#     bash $HOME/git/github/raspberry-pi-server/src/scripts/raspi-banner
+# fi
+
 clear
 
 DATE=$(date +"%A, %e %B %Y, %r")
