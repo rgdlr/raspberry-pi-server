@@ -6,4 +6,4 @@
 
 ![server banner](./doc/res/raspi-server-banner.png)
 
-![server install](./doc/res/raspi-server-full.png)
+![server install](./doc/res/raspi-server-install.png)
