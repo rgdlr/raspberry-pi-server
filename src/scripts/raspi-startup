@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Run REST API on system start up
+# echo "sudo -i -u pi node /var/www/rgdlr.sytes.net.api/index.js &" | sudo tee -a /etc/rc.local
+echo "sudo -i -u pi /home/pi/.nvm/versions/node/v16.15.0/bin/node /var/www/rgdlr.sytes.net.api/index.js &" | sudo tee -a /etc/rc.local
