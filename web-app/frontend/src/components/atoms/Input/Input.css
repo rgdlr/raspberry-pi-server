@@ -1,0 +1,18 @@
+.label {
+	font-size: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.input {
+	width: 100%;
+	font-size: 1rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	border: none;
+	border-radius: var(--border-radius-default);
+}
+
+.input[disabled] {
+	cursor: not-allowed;
+	pointer-events: none;
+}

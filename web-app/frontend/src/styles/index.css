@@ -1,0 +1,59 @@
+:root {
+	--border-size-small: 1px;
+	--border-size-medium: 2px;
+	--border-size-large: 3px;
+	--border-size-default: var(--border-size-small);
+
+	--border-radius-none: 0px;
+	--border-radius-small: 2px;
+	--border-radius-medium: 4px;
+	--border-radius-large: 6px;
+	--border-radius-round: 50%;
+	--border-radius-default: var(--border-radius-none);
+
+	--color-background-dark: rgb(40, 44, 52);
+	--color-background-light: rgb(255, 255, 255);
+	--color-background-default: var(--color-background-dark);
+
+	--color-font-dark: rgb(235, 235, 235);
+	--color-font-light: rgb(35, 35, 35);
+	--color-font-default: var(--color-font-dark);
+
+	--color-link: rgb(97, 218, 251);
+
+	--color-primary: rgb(133, 101, 196);
+	--color-secondary: rgb(203, 95, 227);
+	--color-information: rgb(70, 150, 190);
+	--color-warning: rgb(220, 200, 110);
+	--color-danger: rgb(235, 120, 120);
+	--color-success: rgb(120, 200, 160);
+
+	--hover-filter: brightness(0.85);
+	--hover-transition-time: 0.25s;
+	--hover-transition-filter: filter var(--hover-transition-time);
+	--hover-transition-background-color: background-color var(--hover-transition-time);
+}
+
+* {
+	margin: 0rem;
+	padding: 0rem;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+	/* Causes verticall scroll not working in table
+	overscroll-behavior-y: contain; */
+}
+
+body {
+	background-color: var(--color-background-default);
+	color: var(--color-font-default);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+		'Droid Sans', 'Helvetica Neue', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+code {
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}

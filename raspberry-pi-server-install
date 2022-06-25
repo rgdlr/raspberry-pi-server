@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd src/scripts/config
+cd server/src/scripts/config
 source raspi-server
 exit

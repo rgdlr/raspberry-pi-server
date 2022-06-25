@@ -1,0 +1,31 @@
+@entrypoint=https://rgdlr.sytes.net/api/v1
+
+### GET HOME PAGE
+GET {{entrypoint}}
+
+### GET RECORDS
+GET {{entrypoint}}/records
+Content-Type: application/json
+
+### GET RECORD from 2022-05-15
+GET {{entrypoint}}/records/2022-05-15
+Content-Type: application/json
+
+### POST RECORD from 2022-05-17
+POST {{entrypoint}}/records
+Content-Type: application/json
+
+{
+    "date": "2022-05-15",
+    "consumption": "0.01",
+    "price": "0.30",
+    "cost": "0.03"
+}
+
+### GET RECORD from 2022-05-17
+GET {{entrypoint}}/records/2022-05-17
+Content-Type: application/json
+
+### DELETE RECORD 2022-05-17
+DELETE {{entrypoint}}/records/2022-05-17
+Content-Type: application/json

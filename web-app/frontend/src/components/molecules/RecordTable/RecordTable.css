@@ -1,0 +1,36 @@
+.records-table-container {
+	overflow: auto;
+	margin: 2rem 1rem;
+	width: min(50rem, 90%);
+	text-align: center;
+}
+
+.records-table {
+	width: 100%;
+}
+
+.records-table-head-cell {
+	padding: 1rem;
+	background-color: var(--color-primary);
+}
+
+.records-table-body-cell {
+	padding: 1rem;
+	background-color: var(--color-secondary);
+	text-align: center;
+}
+
+.records-table-body-cell.edit,
+.records-table-body-cell.delete {
+	width: 5rem;
+}
+
+.records-table-body-cell.edit:hover {
+	background-color: var(--color-warning);
+	cursor: pointer;
+}
+
+.records-table-body-cell.delete:hover {
+	background-color: var(--color-danger);
+	cursor: pointer;
+}

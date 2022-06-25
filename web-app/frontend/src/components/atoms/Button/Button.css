@@ -1,0 +1,132 @@
+.button {
+	cursor: pointer;
+	font-size: 1rem;
+	min-width: 10rem;
+	padding: 1rem 2rem;
+	border: none;
+	border-radius: var(--border-radius-default);
+	color: var(--color-font-default);
+}
+
+/* Primary */
+
+.button.regular.primary {
+	background-color: var(--color-primary);
+}
+
+.button.outline.primary {
+	box-shadow: inset 0 0 0 var(--border-size-default) var(--color-primary);
+}
+
+.button.outline.primary:hover {
+	background-color: var(--color-primary);
+}
+
+.button.link.primary {
+	color: var(--color-primary);
+}
+
+/* Secondary */
+
+.button.secondary {
+	background-color: var(--color-secondary);
+}
+
+.button.outline.secondary {
+	box-shadow: inset 0 0 0 var(--border-size-default) var(--color-secondary);
+}
+
+.button.outline.secondary:hover {
+	background-color: var(--color-secondary);
+}
+
+.button.link.secondary {
+	color: var(--color-secondary);
+}
+
+/* Information */
+
+.button.regular.information {
+	background-color: var(--color-information);
+}
+
+.button.outline.information {
+	box-shadow: inset 0 0 0 var(--border-size-default) var(--color-information);
+}
+
+.button.outline.information:hover {
+	background-color: var(--color-information);
+}
+
+.button.link.information {
+	color: var(--color-information);
+}
+
+/* Warning */
+
+.button.regular.warning {
+	background-color: var(--color-warning);
+}
+
+.button.outline.warning {
+	box-shadow: inset 0 0 0 var(--border-size-default) var(--color-warning);
+}
+
+.button.outline.warning:hover {
+	background-color: var(--color-warning);
+}
+
+.button.link.warning {
+	color: var(--color-warning);
+}
+
+/* Danger */
+
+.button.danger {
+	background-color: var(--color-danger);
+}
+
+.button.outline.danger {
+	box-shadow: inset 0 0 0 var(--border-size-default) var(--color-danger);
+}
+
+.button.outline.danger:hover {
+	background-color: var(--color-danger);
+}
+
+.button.link.danger {
+	color: var(--color-danger);
+}
+
+/* Success */
+
+.button.success {
+	background-color: var(--color-success);
+}
+
+.button.outline.success {
+	box-shadow: inset 0 0 0 var(--border-size-default) var(--color-success);
+}
+
+.button.outline.success:hover {
+	background-color: var(--color-success);
+}
+
+.button.link.success {
+	color: var(--color-success);
+}
+
+/* general */
+
+.button.outline,
+.button.link,
+.button.link:hover {
+	background-color: unset;
+	transition: var(--hover-transition-background-color);
+}
+
+.button.regular:hover,
+.button.link:hover {
+	filter: var(--hover-filter);
+	transition: var(--hover-transition-filter);
+}

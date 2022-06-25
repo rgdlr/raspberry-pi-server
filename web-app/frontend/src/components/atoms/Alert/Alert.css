@@ -1,0 +1,93 @@
+.alert {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.alert-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	filter: opacity(0.2);
+	z-index: 10;
+}
+
+.alert-window {
+	padding: 2rem 3rem;
+	max-width: min(25rem, 90%);
+	z-index: 10;
+	position: relative;
+	border-radius: var(--border-radius-default);
+}
+
+.alert-symbol {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	width: 1.5rem;
+}
+
+.alert-title {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.alert-message {
+	font-size: 1rem;
+	margin: 1rem 0rem 2rem 0rem;
+}
+
+.alert-close {
+	font-size: 1rem;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	text-align: center;
+	border-radius: var(--border-radius-default);
+}
+
+.alert-close:hover {
+	filter: contrast(1.2);
+}
+
+.alert-overlay.primary,
+.alert-window.primary,
+.alert-close.primary {
+	background-color: var(--color-primary);
+}
+
+.alert-overlay.secondary,
+.alert-window.secondary,
+.alert-close.secondary {
+	background-color: var(--color-secondary);
+}
+
+.alert-overlay.information,
+.alert-window.information,
+.alert-close.information {
+	background-color: var(--color-information);
+}
+
+.alert-overlay.warning,
+.alert-window.warning,
+.alert-close.warning {
+	background-color: var(--color-warning);
+}
+
+.alert-overlay.danger,
+.alert-window.danger,
+.alert-close.danger {
+	background-color: var(--color-danger);
+}
+
+.alert-overlay.success,
+.alert-window.success,
+.alert-close.success {
+	background-color: var(--color-success);
+}

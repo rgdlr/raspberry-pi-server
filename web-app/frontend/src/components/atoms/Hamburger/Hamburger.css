@@ -1,0 +1,231 @@
+:root {
+	--hamburger-size: 3rem;
+	--hamburger-gap: calc(var(--hamburger-size) * 0.15);
+	--hamburger-bar-height: calc(var(--hamburger-size) * 0.05);
+	--hamburger-bar-width: calc(var(--hamburger-size) * 0.5);
+	--hamburger-bar-border-radius: calc(var(--hamburger-bar-height) * 0.5);
+	--hamburger-transition-duration: 0.5s;
+	--hamburger-transition-delay: 0.25s;
+	--hamburger-translate: calc(var(--hamburger-bar-height) + var(--hamburger-gap));
+}
+
+/* Hamburger Button Icon */
+
+.hamburger {
+	height: var(--hamburger-size);
+	width: var(--hamburger-size);
+	gap: var(--hamburger-gap);
+	background-color: var(--color-primary);
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 5;
+}
+
+.hamburger:hover,
+.hamburger-menu-content-item:hover {
+	filter: brightness(0.9);
+}
+
+.hamburger-checkbox {
+	height: var(--hamburger-size);
+	width: var(--hamburger-size);
+	position: absolute;
+	cursor: pointer;
+	opacity: 0;
+}
+
+.hamburger-open-first-bar,
+.hamburger-open-second-bar,
+.hamburger-open-third-bar,
+.hamburger-close-first-bar,
+.hamburger-close-second-bar {
+	height: var(--hamburger-bar-height);
+	width: var(--hamburger-bar-width);
+	border-radius: var(--hamburger-bar-border-radius);
+	background-color: var(--color-font-dark);
+	pointer-events: none;
+}
+
+.hamburger-close-first-bar,
+.hamburger-close-second-bar {
+	position: absolute;
+}
+
+/* Hamburger Animation: Merge and Fold */
+
+.hamburger.merge-and-fold .hamburger-open-first-bar,
+.hamburger.merge-and-fold .hamburger-open-second-bar,
+.hamburger.merge-and-fold .hamburger-open-third-bar,
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-close-first-bar,
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-close-second-bar {
+	transition: all var(--hamburger-transition-duration) var(--hamburger-transition-delay);
+}
+
+.hamburger.merge-and-fold .hamburger-close-first-bar,
+.hamburger.merge-and-fold .hamburger-close-second-bar,
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-open-first-bar,
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-open-second-bar,
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transition: all var(--hamburger-transition-duration) cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-open-first-bar {
+	transform: translateY(var(--hamburger-translate));
+	opacity: 0;
+}
+
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-open-second-bar {
+	opacity: 0;
+}
+
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transform: translateY(calc(-1 * var(--hamburger-translate)));
+	opacity: 0;
+}
+
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-close-first-bar {
+	transform: rotateZ(45deg);
+}
+
+.hamburger.merge-and-fold .hamburger-checkbox:checked ~ .hamburger-close-second-bar {
+	transform: rotateZ(-45deg);
+}
+
+/* Hamburger Animation: Rotate and Underline */
+
+.hamburger.rotate-and-underline .hamburger-open-first-bar,
+.hamburger.rotate-and-underline .hamburger-open-second-bar,
+.hamburger.rotate-and-underline .hamburger-open-third-bar,
+.hamburger.rotate-and-underline .hamburger-checkbox:checked ~ .hamburger-open-first-bar,
+.hamburger.rotate-and-underline .hamburger-checkbox:checked ~ .hamburger-open-second-bar,
+.hamburger.rotate-and-underline .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transition: all var(--hamburger-transition-duration);
+}
+
+.hamburger.rotate-and-underline .hamburger-checkbox:checked ~ .hamburger-open-first-bar {
+	transform: translateY(calc(var(--hamburger-translate) * 0.5)) rotateZ(45deg);
+}
+
+.hamburger.rotate-and-underline .hamburger-checkbox:checked ~ .hamburger-open-second-bar {
+	transform: translateY(var(--hamburger-translate)) rotateZ(180deg);
+}
+
+.hamburger.rotate-and-underline .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transform: translateY(calc(-1 * var(--hamburger-translate) * 1.5)) rotateZ(-45deg);
+}
+
+.hamburger.rotate-and-underline .hamburger-close-first-bar,
+.hamburger.rotate-and-underline .hamburger-close-second-bar {
+	display: none;
+}
+
+/* Hamburger Animation: Rotate and Hide */
+
+.hamburger.rotate-and-hide .hamburger-open-first-bar,
+.hamburger.rotate-and-hide .hamburger-open-second-bar,
+.hamburger.rotate-and-hide .hamburger-open-third-bar,
+.hamburger.rotate-and-hide .hamburger-checkbox:checked ~ .hamburger-open-first-bar,
+.hamburger.rotate-and-hide .hamburger-checkbox:checked ~ .hamburger-open-second-bar,
+.hamburger.rotate-and-hide .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transition: all var(--hamburger-transition-duration);
+}
+
+.hamburger.rotate-and-hide .hamburger-checkbox:checked ~ .hamburger-open-first-bar {
+	transform: translateY(var(--hamburger-translate)) rotateZ(45deg);
+}
+
+.hamburger.rotate-and-hide .hamburger-checkbox:checked ~ .hamburger-open-second-bar {
+	transform: rotateX(90deg);
+}
+
+.hamburger.rotate-and-hide .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transform: translateY(calc(-1 * var(--hamburger-translate))) rotateZ(-45deg);
+}
+
+.hamburger.rotate-and-hide .hamburger-close-first-bar,
+.hamburger.rotate-and-hide .hamburger-close-second-bar {
+	display: none;
+}
+
+/* Hamburger Animation: Rotate and Rotate */
+
+.hamburger.rotate-and-rotate .hamburger-open-first-bar,
+.hamburger.rotate-and-rotate .hamburger-open-second-bar,
+.hamburger.rotate-and-rotate .hamburger-open-third-bar,
+.hamburger.rotate-and-rotate .hamburger-checkbox:checked ~ .hamburger-open-first-bar,
+.hamburger.rotate-and-rotate .hamburger-checkbox:checked ~ .hamburger-open-second-bar,
+.hamburger.rotate-and-rotate .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transition: all var(--hamburger-transition-duration);
+}
+
+.hamburger.rotate-and-rotate .hamburger-checkbox:checked ~ .hamburger-open-first-bar {
+	transform: translateY(var(--hamburger-translate)) rotateZ(135deg);
+}
+
+.hamburger.rotate-and-rotate .hamburger-checkbox:checked ~ .hamburger-open-second-bar {
+	transform: rotateY(90deg);
+}
+
+.hamburger.rotate-and-rotate .hamburger-checkbox:checked ~ .hamburger-open-third-bar {
+	transform: translateY(calc(-1 * var(--hamburger-translate))) rotateZ(-135deg);
+}
+
+.hamburger.rotate-and-rotate .hamburger-close-first-bar,
+.hamburger.rotate-and-rotate .hamburger-close-second-bar {
+	display: none;
+}
+
+/* Hamburger Menu */
+
+.hamburger-menu,
+.hamburger-menu-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;	
+}
+
+.hamburger-menu {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.hamburger-menu-overlay {
+	background-color: var(--color-primary);
+	opacity: 0.9;
+	z-index: 1;
+	animation: show-hamburger-menu var(--hamburger-transition-duration) linear;
+}
+
+.hamburger-menu-content {
+	text-align: center;
+	z-index: 1;
+	animation: show-hamburger-menu var(--hamburger-transition-duration) linear;
+}
+
+@keyframes show-hamburger-menu {
+	0% {
+		opacity: 0;
+		transform: translateY(-100vh);
+	}
+	100% {
+		opacity: 0.9;
+		transform: translateY(0rem);
+	}
+}
+
+.hamburger-menu-content-item {
+	display: block;
+	margin: 1rem;
+	font-size: 2rem;
+	font-weight: bold;
+	text-decoration: none;
+	color: var(--color-font-dark);
+}
