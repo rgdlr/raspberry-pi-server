@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry Hub</title>
+    <link rel="icon" sizes="48x48" type="image/png" href="https://assets.raspberrypi.com/favicon.png" data-gatsby-head="true">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-primary: #f5f5f7;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+        .text-container {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            width: 100%;
+        }
+        h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin: 0;
+            background: linear-gradient(180deg, #ffffff 0%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .dock {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: flex-end;
+                        gap: 16px;
+            padding: 16px;
+            background: rgba(28, 28, 30, 0.4);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            z-index: 100;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: transform, width, height;
+        }
+        .dock-item {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.0) 100%);
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            transform-origin: bottom;
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        margin 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        opacity 0.4s ease,
+                        border-width 0.4s ease,
+                        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        background 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            overflow: visible;
+        }
+        .dock-item svg {
+            width: 32px;
+            height: 32px;
+            display: block;
+            pointer-events: none;
+            margin: 0;
+            padding: 0;
+            transition: transform 0.3s ease;
+        }
+        .dock-item.collapsed {
+            width: 0;
+            margin: 0;
+            opacity: 0;
+            border-width: 0;
+            transform: scale(0) translateY(10px);
+            pointer-events: none;
+        }
+        .dock-item.collapsed svg {
+            transform: scale(0);
+        }
+        .dock-item::before {
+            content: attr(data-name);
+            position: absolute;
+            top: -50px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .dock-item:hover::before {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .dock-item:hover {
+            transform: scale(1.5);
+            margin: 0 16px;
+            z-index: 2;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+        }
+        .dock-item:has(+ .dock-item:hover),
+        .dock-item:hover + .dock-item {
+            transform: scale(1.2);
+            margin: 0 8px;
+            z-index: 1;
+        }
+        .skeleton {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            pointer-events: none;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .skeleton::before {
+            display: none;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div class="text-container">
+        <h1>Raspberry Hub</h1>
+    </div>
+    <nav class="dock" id="dynamic-dock">
+        <a href="http://raspberrypi.local:8000" class="dock-item" data-name="coolify" target="_blank">
+            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#6B16ED" d="M4.364 4.364V0h17.454v4.364zm0 13.09H0V4.365h4.364zm0 0h17.454v4.364H4.364ZM6.545 6.546v-1.7H22.3V2.182H24v4.363zm0 0v10.4h-1.7v-10.4ZM3.882 17.936v1.7h-1.7v-1.7ZM24 24H6.545v-1.7H22.3v-2.664H24Z"/></svg>
+        </a>
+        <div class="dock-item skeleton"></div>
+        <div class="dock-item skeleton"></div>
+        <div class="dock-item skeleton"></div>
+    </nav>
+    <script>
+        const getServiceIcon = (name) => {
+            const lowerName = name.toLowerCase();
+            if (lowerName.includes('n8n')) {
+                return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 26"><path fill="#EA4B71" fill-rule="evenodd" d="M27.2 11.396a3.2 3.2 0 0 1-3.1-2.4h-3.667a1.6 1.6 0 0 0-1.578 1.336l-.132.79a3.2 3.2 0 0 1-1.04 1.874 3.2 3.2 0 0 1 1.04 1.874l.132.789a1.6 1.6 0 0 0 1.578 1.336h.468a3.201 3.201 0 1 1-.001 1.6h-.467a3.2 3.2 0 0 1-3.156-2.673l-.132-.79a1.6 1.6 0 0 0-1.578-1.336h-1.268a3.2 3.2 0 0 1-6.198 0H6.299a3.2 3.2 0 1 1 .001-1.6h1.8a3.2 3.2 0 0 1 6.2 0h1.267a1.6 1.6 0 0 0 1.578-1.338l.132-.79a3.2 3.2 0 0 1 3.156-2.672h3.668a3.201 3.201 0 0 1 6.299.8 3.2 3.2 0 0 1-3.2 3.2m0-1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2m-24 4.8a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2m9.6-1.6a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0m12.8 4.8a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0" clip-rule="evenodd"></path></svg>`;
+            } else if (lowerName.includes('forgejo')) {
+                return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212 212"><g transform="translate(6 6)"><path d="M58 168V70a50 50 0 0 1 50-50h20" fill="none" stroke="#f60" stroke-width="25"/><path d="M58 168v-30a50 50 0 0 1 50-50h20" fill="none" stroke="#d40000" stroke-width="25"/><circle cx="142" cy="20" r="18" fill="none" stroke="#f60" stroke-width="15"/><circle cx="142" cy="88" r="18" fill="none" stroke="#d40000" stroke-width="15"/><circle cx="58" cy="180" r="18" fill="none" stroke="#d40000" stroke-width="15"/></g></svg>`;
+            } else if (lowerName.includes('pi-hole') || lowerName.includes('pihole')) {
+                return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 90 130"><defs><linearGradient id="a" x1="0" x2=".8" y1="0" y2="0"><stop offset="0" stop-color="#22b225"/><stop offset="1" stop-color="#29fc2e"/></linearGradient><path id="b" d="M1 85.459c0-1.717 1.707-16.993 16.907-16.993 9.998-.717 17.766 7.169 27.464 7.169 24.208-1.814 20.952-34.293-.252-34.293-5.3-.014-10.179 2.22-13.929 5.954L6.738 71.747C2.68 75.792 1 80.972 1 85.459"/></defs><path fill="url(#a)" d="M37.4 40.145C21.18 38.415 4.84 26.155 3.55.215c25.17 0 38.63 14.9 39.93 38.51 4.76-28.32 27.07-25 27.07-25 1.06 16.05-12.12 25.78-27.07 26.59-4.2-8.85-29.36-30.56-29.36-30.56a.07.07 0 0 0-.11.08s24.28 21.15 23.39 30.31"/><use xlink:href="#b" fill="#f60d1a" transform="rotate(180 45 85.3)"/><use xlink:href="#b" fill="#96060c" transform="rotate(90 45 85.3)"/><use xlink:href="#b" fill="#96060c" transform="rotate(-90 45 85.3)"/><use xlink:href="#b" fill="#f60d1a"/></svg>`;
+            }
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
+        };
+        const fetchDockItems = async () => {
+            const dock = document.getElementById('dynamic-dock');
+            try {
+                const response = await fetch('http://n8n-haq40ox799b3901z116nyhkf.88.0.28.123.sslip.io/webhook/67897d6a-3121-4abd-be04-5a29ce460232');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                const skeletons = dock.querySelectorAll('.skeleton');
+                skeletons.forEach(skel => skel.classList.add('collapsed'));
+                setTimeout(() => {
+                    skeletons.forEach(skel => skel.remove());
+                    const newItems = [];
+                    data.forEach(service => {
+                        if (["coolify"].includes(service.name.toLowerCase())) {
+                                return;
+                        }
+                        const a = document.createElement('a');
+                        a.href = service.url;
+                        a.className = 'dock-item collapsed';
+                        a.target = '_blank';
+                        a.setAttribute('data-name', service.name);
+                        a.innerHTML = getServiceIcon(service.name);
+                        dock.appendChild(a);
+                        newItems.push(a);
+                    });
+                    // Forzar un 'reflow' del DOM para que el navegador procese los nuevos elementos en su estado 'colapsado' antes de expandirlos.
+                    void dock.offsetHeight;
+                    newItems.forEach(item => item.classList.remove('collapsed'));
+                }, 400);
+            } catch (error) {
+                console.error("No se pudieron cargar los servicios dinámicos del dock:", error);
+                const skeletons = dock.querySelectorAll('.skeleton');
+                skeletons.forEach(skel => skel.classList.add('collapsed'));
+                setTimeout(() => {
+                    skeletons.forEach(skel => skel.remove());
+                }, 400);
+            }
+        };
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 40;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        keyLight.position.set(15, 20, 15);
+        scene.add(keyLight);
+        const fillLight = new THREE.DirectionalLight(0x88bbff, 0.35);
+        fillLight.position.set(-15, -10, 10);
+        scene.add(fillLight);
+        const rimLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        rimLight.position.set(0, 15, -20);
+        scene.add(rimLight);
+        const object3D = new THREE.Group();
+        const berryMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x9a173a,
+            metalness: 0.15,
+            roughness: 0.5,
+            clearcoat: 0.1,
+            clearcoatRoughness: 0.3
+        });
+        const leafMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x56963b,
+            metalness: 0.1,
+            roughness: 0.6,
+            clearcoat: 0.1,
+            clearcoatRoughness: 0.3
+        });
+        const leafGeo = new THREE.SphereGeometry(1.0, 32, 32);
+        const leftLeaf = new THREE.Mesh(leafGeo, leafMaterial);
+        leftLeaf.scale.set(1.0, 2.0, 0.3);
+        leftLeaf.position.set(-1.0, 3.2, 0);
+        leftLeaf.rotation.z = Math.PI / 4.5;
+        object3D.add(leftLeaf);
+        const rightLeaf = new THREE.Mesh(leafGeo, leafMaterial);
+        rightLeaf.scale.set(1.0, 2.0, 0.3);
+        rightLeaf.position.set(1.0, 3.2, 0);
+        rightLeaf.rotation.z = -Math.PI / 4.5;
+        object3D.add(rightLeaf);
+        const stemGeo = new THREE.CylinderGeometry(0.15, 0.3, 1.0, 16);
+        const stem = new THREE.Mesh(stemGeo, leafMaterial);
+        stem.position.set(0, 2.5, -0.2);
+        object3D.add(stem);
+        const sphereGeo = new THREE.SphereGeometry(1.3, 32, 32);
+        const berryPositions = [
+            [0, -2.5, 0],
+            [-1.4, -1.2, 0.5], [1.4, -1.2, 0.5],
+            [-0.6, -1.2, -0.8], [0.6, -1.2, -0.8],
+            [-2.2, 0.4, 0.2], [0, 0.5, 1.0], [2.2, 0.4, 0.2],
+            [-1.2, 0.4, -0.9], [1.2, 0.4, -0.9],
+            [-1.5, 2.0, 0.4], [1.5, 2.0, 0.4],
+            [0, 1.8, -0.6]
+        ];
+        berryPositions.forEach(pos => {
+            const sphere = new THREE.Mesh(sphereGeo, berryMaterial);
+            sphere.position.set(pos[0], pos[1], pos[2]);
+            object3D.add(sphere);
+        });
+        object3D.scale.set(2.2, 2.2, 2.2);
+        scene.add(object3D);
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+        window.onload = function () {
+            let time = 0;
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.015;
+                object3D.rotation.y = time * 0.3 + Math.sin(time * 0.8) * 0.2;
+                object3D.rotation.x = Math.sin(time * 0.6) * 0.15 + Math.sin(time * 0.27) * 0.1;
+                object3D.rotation.z = Math.cos(time * 0.5) * 0.1 + Math.sin(time * 0.19) * 0.08;
+                targetX = mouseX * 0.001;
+                targetY = mouseY * 0.001;
+                let floatY = Math.sin(time * 1.2) * 0.8 + Math.cos(time * 0.61) * 0.6;
+                let floatX = Math.sin(time * 0.73) * 0.5;
+                object3D.position.x += 0.02 * (targetX + floatX - object3D.position.x);
+                object3D.position.y += 0.02 * (-targetY + floatY - object3D.position.y);
+                renderer.render(scene, camera);
+            }
+            animate();
+        };
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        fetchDockItems();
+    </script>
+</body>
+</html>
