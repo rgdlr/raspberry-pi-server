@@ -1,48 +1,59 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Disable ssh login through user and password
-echo " ⏳ SSH configuration"
-cat /etc/ssh/sshd_config \
-	| sed 's/Port 22/Port 22022/' \
-	| sed 's/#Port 22022/Port 22022/' \
-	| sed 's/PasswordAuthentication yes/PasswordAuthentication no/' \
-	| sed 's/#PasswordAuthentication no/PasswordAuthentication no/' \
-	| sed 's/ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' \
-	| sed 's/#ChallengeResponseAuthentication no/ChallengeResponseAuthentication no/' \
-	| sed 's/UsePAM yes/UsePAM no/' \
-	| sed 's/#UsePAM yes/UsePAM yes/' \
-	| sed 's/PermitRootLogin prohibit-password/PermitRootLogin no/' \
-	| sed 's/#PermitRootLogin no/PermitRootLogin no/' \
-	| sed 's/MaxAuthTries 6/MaxAuthTries 1/' \
-	| sed 's/#MaxAuthTries 1/MaxAuthTries 1/' \
-	| sed 's/StrictModes no/StrictModes yes/' \
-	| sed 's/#StrictModes yes/StrictModes yes/' \
-	| sed 's/MaxStartups 10:30:100/MaxStartups 1/' \
-	| sed 's/#MaxStartups 1/MaxStartups 1/' \
-	| sed 's/LoginGraceTime 2m/LoginGraceTime 0/' \
-	| sed 's/#LoginGraceTime 0/LoginGraceTime 0/' \
-	| sed 's/ClientAliveInterval 0/ClientAliveInterval 600/' \
-	| sed 's/#ClientAliveInterval 600/ClientAliveInterval 600/' \
-	| sed 's/ClientAliveCountMax 3/ClientAliveCountMax 0/' \
-	| sed 's/#ClientAliveCountMax 0/ClientAliveCountMax 0/' \
-	| sed 's/X11Forwarding yes/X11Forwarding no/' \
-	| sed 's/#X11Forwarding no/X11Forwarding no/' \
-	| sed 's/PubkeyAuthentication no/PubkeyAuthentication yes/' \
-	| sed 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' \
-	> sshd_config \
-	&& echo -e "\nProtocol 2\nAllowUsers pi\nAllowGroups pi" >> sshd_config \
-	&& sudo chown root:root sshd_config \
-	&& sudo mv sshd_config /etc/ssh/sshd_config
+TARGET_USER="${SUDO_USER:-$(whoami)}"
+USER_HOME=$(eval echo "~$TARGET_USER")
+AUTH_KEYS_COUNT=$(grep -c "^[a-zA-Z]" "$USER_HOME/.ssh/authorized_keys" 2>/dev/null || echo 0)
 
-sleep 1
-echo -ne "\e[1A\e[K"
-echo " ✅ SSH configuration"
+echo " ⏳ Configuring SSH daemon..."
 
-# Restart ssh service
-echo " ⏳ SSH service restart"
-sudo systemctl restart ssh.service 1> /dev/null 2> /dev/null
-sudo systemctl restart sshd.service 1> /dev/null 2> /dev/null
+# Backup sshd_config
+[ ! -f /etc/ssh/sshd_config.bak ] && sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
-sleep 1
-echo -ne "\e[1A\e[K"
-echo " ✅ SSH service restart"
+# Determine PasswordAuthentication setting safely
+DISABLE_PASSWORDS="yes"
+if [ "$AUTH_KEYS_COUNT" -eq 0 ]; then
+    echo " ⚠️  No authorized keys found. Disabling passwords would lock you out!"
+    echo "    Password authentication will remain ENABLED until keys are verified."
+    DISABLE_PASSWORDS="no"
+else
+    read -r -p " ❔ Disable password login and enforce SSH keys? (y/n) [default: y]: " DIS_PASS
+    [ -z "$DIS_PASS" ] && DIS_PASS="y"
+    if [ "$DIS_PASS" != "y" ] && [ "$DIS_PASS" != "Y" ]; then
+        DISABLE_PASSWORDS="no"
+    fi
+fi
+
+# Create dedicated drop-in hardening config in sshd_config.d or update main file
+CONF_FILE="/etc/ssh/sshd_config.d/99-raspi-server.conf"
+
+sudo bash -c "cat <<EOF > '$CONF_FILE'
+# Raspberry Pi Server Hardening Configuration
+Port 22022
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication $( [ "$DISABLE_PASSWORDS" == "yes" ] && echo "no" || echo "yes" )
+KbdInteractiveAuthentication $( [ "$DISABLE_PASSWORDS" == "yes" ] && echo "no" || echo "yes" )
+UsePAM yes
+StrictModes yes
+MaxAuthTries 3
+ClientAliveInterval 300
+ClientAliveCountMax 3
+X11Forwarding no
+AllowUsers $TARGET_USER
+EOF"
+
+sudo chmod 644 "$CONF_FILE"
+
+# Test configuration syntax before reloading daemon
+if sudo sshd -t; then
+    echo " ✅ SSH configuration syntax verified."
+    echo " ⏳ Restarting SSH service on port 22022..."
+    sudo systemctl restart ssh 2>/dev/null || sudo systemctl restart sshd 2>/dev/null
+    echo " ✅ SSH service restarted on port 22022."
+    echo "    ℹ️  Connect with: ssh -p 22022 $TARGET_USER@<ip-or-domain>"
+else
+    echo " ❌ SSH configuration test failed! Reverting changes..."
+    sudo rm -f "$CONF_FILE"
+    exit 1
+fi
+

@@ -1,10 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Install nvm
-echo " ⏳ Backend tools install"
-curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash 1> /dev/null 2> /dev/null
+echo " ⏳ Checking Node.js runtime environment..."
 
-# Install nodejs
-nvm install --lts 1> /dev/null 2> /dev/null
-echo -ne "\e[1A\e[K"
-echo " ✅ Backend tools install"
+if which node >/dev/null 2>&1 && which npm >/dev/null 2>&1; then
+    NODE_VER=$(node -v)
+    NPM_VER=$(npm -v)
+    echo " ✅ Node.js ($NODE_VER) and npm ($NPM_VER) are already installed at $(which node)."
+else
+    echo " ⏳ Installing Node.js LTS via official repository..."
+    sudo apt-get update -y >/dev/null 2>&1
+    sudo apt-get install -y ca-certificates curl gnupg build-essential >/dev/null 2>&1
+
+    # NodeSource LTS setup for Debian / Raspberry Pi OS
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - >/dev/null 2>&1
+    sudo apt-get install -y nodejs >/dev/null 2>&1
+
+    if which node >/dev/null 2>&1; then
+        echo " ✅ Node.js ($(node -v)) and npm ($(npm -v)) installed successfully."
+    else
+        echo " ⚠️  NodeSource install failed. Falling back to NVM..."
+        export NVM_DIR="$HOME/.nvm"
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null 2>&1
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        nvm install --lts >/dev/null 2>&1
+        nvm use --lts >/dev/null 2>&1
+        echo " ✅ Node.js ($(node -v)) installed via NVM."
+    fi
+fi
+

@@ -1,73 +1,78 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# SSH LOGIN BANNER
-# touch .hushlogin
-# clear -x
+# SSH Login & MOTD Banner for Raspberry Pi Server
 
-# .bashrc append
-# if [ -n "$PS1" ]; then
-#     bash $HOME/git/github/raspberry-pi-server/src/scripts/raspi-banner
-# fi
-
-clear
-
-DATE=$(date +"%A, %e %B %Y, %r")
+DATE=$(date +"%A, %e %B %Y, %T")
 MACHINE=$(uname -srmo)
-SHELL=$(echo $SHELL | rev | cut -d'/' -f1 | rev)
-SHELL_VERSION=$(echo $BASH_VERSION | cut -d'(' -f1)
-SHELL_INFO="Shell ${SHELL} ${SHELL_VERSION}"
+SHELL_NAME=$(basename "$SHELL")
+SHELL_VERSION=$(echo "$BASH_VERSION" | cut -d'(' -f1)
+SHELL_INFO="Shell ${SHELL_NAME} ${SHELL_VERSION}"
 
-LAST_LOGIN=$(last | grep $(whoami) | head -n2 | tail -n1 | awk '{print $4, $5, $6, $7, "from", $3}')
-SSH_USERS=$(netstat | grep 22022 | grep ESTABLISHED | wc -l)
-SSH_USERS_IP=$(netstat | grep 22022 | awk '{print $5}' | cut -d':' -f1 | awk '{print}' ORS=', ' | sed 's/.\{2\}$//')
-ACTIVE_USERS="${SSH_USERS} from ${SSH_USERS_IP}"
+# Last login info
+LAST_LOGIN=$(last -n 2 -R "$(whoami)" 2>/dev/null | awk 'NR==2 {print $4, $5, $6, $7, "from", $3}')
+[ -z "$LAST_LOGIN" ] && LAST_LOGIN="Initial session"
 
-let uptime="$(cut -d'.' -f1 /proc/uptime)"
-let seconds=$((${uptime}%60))
-let minutes=$((${uptime}/60%60))
-let hours=$((${uptime}/3600%24))
-let days=$((${uptime}/86400))
-UPTIME=$(printf "%d days %02d hours %02d minutes %02d seconds" "$days" "$hours" "$minutes" "$seconds")
+# Active SSH sessions using modern ss utility
+SSH_USERS_COUNT=$(ss -tn state established '( sport = :22022 or sport = :22 )' 2>/dev/null | grep -v "Recv-Q" | wc -l)
+SSH_USERS_IP=$(ss -tn state established '( sport = :22022 or sport = :22 )' 2>/dev/null | grep -v "Recv-Q" | awk '{print $4}' | cut -d: -f1 | sort -u | xargs | tr ' ' ', ')
+[ -z "$SSH_USERS_IP" ] && SSH_USERS_IP="localhost"
+ACTIVE_USERS="${SSH_USERS_COUNT} session(s) (${SSH_USERS_IP})"
 
-MEMMORY_SIZE=$(cat /proc/meminfo | grep MemTotal | awk {'print $2/1024'})
-MEMMORY_USED=$(free -h --si | grep Mem | awk '{print $3}')
-MEMMORY_FREE=$(free -h --si | grep Mem | awk '{print $4}')
-MEMMORY_AVAILABLE=$(free -h --si | grep Mem | awk '{print $7}')
-MEMMORY="${MEMMORY_USED} | ${MEMMORY_SIZE}MB"
+# Uptime calculation
+if [ -f /proc/uptime ]; then
+    UPTIME_SECS=$(cut -d'.' -f1 /proc/uptime)
+    DAYS=$((UPTIME_SECS / 86400))
+    HOURS=$(( (UPTIME_SECS % 86400) / 3600 ))
+    MINS=$(( (UPTIME_SECS % 3600) / 60 ))
+    SECS=$(( UPTIME_SECS % 60 ))
+    UPTIME=$(printf "%d days %02d hrs %02d mins %02d secs" "$DAYS" "$HOURS" "$MINS" "$SECS")
+else
+    UPTIME=$(uptime -p 2>/dev/null || echo "Unknown")
+fi
 
-DISK_SIZE=$(df -h | grep /dev/root | awk '{print $2}')
-DISK_USED=$(df -h | grep /dev/root | awk '{print $3}')
-DISK_AVAILABLE=$(df -h | grep /dev/root | awk '{print $4}')
-DISK="${DISK_USED} | ${DISK_SIZE}"
+# Memory usage
+read -r MEM_USED MEM_TOTAL < <(free -h 2>/dev/null | awk '/Mem:/ {print $3, $2}')
+MEMORY="${MEM_USED:-0} / ${MEM_TOTAL:-0}"
 
-PROCESSES_RUNNING=$(ps -u $(whoami) --no-headers | wc -l)
-PROCESSES_AUX=$(ps aux --no-headers | wc -l)
-PROCESSES="${PROCESSES_RUNNING} | ${PROCESSES_AUX}"
+# Disk usage (universal root partition inspection)
+read -r DISK_USED DISK_SIZE < <(df -h / 2>/dev/null | awk 'NR==2 {print $3, $2}')
+DISK="${DISK_USED:-0} / ${DISK_SIZE:-0}"
 
-read LOAD_ONE LOAD_FIVE LOAD_FIFTEEN REST < /proc/loadavg
-LOAD_AVERAGE="${LOAD_ONE} | ${LOAD_FIVE} | ${LOAD_FIFTEEN}"
+# Temperature reading
+TEMP=$(vcgencmd measure_temp 2>/dev/null | cut -d= -f2)
+[ -z "$TEMP" ] && TEMP=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null | awk '{printf "%.1f°C", $1/1000}')
+[ -z "$TEMP" ] && TEMP="N/A"
 
-PRIVATE_IP=$(hostname -I | awk '{print $1}')
-PUBLIC_IP=$(curl -s http://icanhazip.com)
-IP_ADDRESSES="${PRIVATE_IP} | ${PUBLIC_IP}"
+# Processes and load
+PROCESSES_USER=$(ps -u "$(whoami)" --no-headers 2>/dev/null | wc -l)
+PROCESSES_TOTAL=$(ps aux --no-headers 2>/dev/null | wc -l)
+PROCESSES="${PROCESSES_USER} user / ${PROCESSES_TOTAL} total"
 
-COLORS=$(for a in {40..47}; do echo -ne "\e[8;30;${a}m__\e[0;37;40m"; done)
+read -r LOAD_ONE LOAD_FIVE LOAD_FIFTEEN _ < /proc/loadavg
+LOAD_AVERAGE="${LOAD_ONE} (1m) / ${LOAD_FIVE} (5m) / ${LOAD_FIFTEEN} (15m)"
 
+# IP Addresses
+PRIVATE_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+PUBLIC_IP=$(curl -s -m 1.5 https://icanhazip.com 2>/dev/null || echo "Offline/Unresolved")
+IP_ADDRESSES="${PRIVATE_IP} (LAN) | ${PUBLIC_IP} (WAN)"
+
+# Render Banner
 echo "$(tput bold)$(tput setaf 2)"
-echo "  ┌────────────────────────┐  "
-echo "  │   ⢀⣠⣤⣶⣶⣶⣤⣄⠀⠀⣀⣤⣶⣶⣶⣤⣄⡀⠀  │  $(tput setaf 2)${DATE}"
-echo "  │   ⢸⣿⠁⠀⠀⠀⠀⠙⢷⡾⠋⠀⠀⠀⠀⠈⣿⡇⠀  │  $(tput setaf 2)${MACHINE}"
-echo "  │   ⠘⢿⡆⠀⠀⠀⠢⣄⣼⣧⣠⠔⠀⠀⠀⢰⡿⠃⠀  │  $(tput setaf 2)${SHELL_INFO}"
-echo "  │⠀   ⠈⠻⣧⣤⣀⣤⣾⣿⣿⣷⣤⣀⣤⣼⠟⠁⠀⠀  │  "
+echo "  ┌────────────────────────┐  "
+echo "  │   ⢀⣠⣤⣶⣶⣶⣤⣄⠀⠀⣀⣤⣶⣶⣶⣤⣄⡀⠀  │  $(tput setaf 2)${DATE}"
+echo "  │   ⢸⣿⠁⠀⠀⠀⠀⠙⢷⡾⠋⠀⠀⠀⠀⠈⣿⡇⠀  │  $(tput setaf 2)${MACHINE}"
+echo "  │   ⠘⢿⡆⠀⠀⠀⠢⣄⣼⣧⣠⠔⠀⠀⠀⢰⡿⠃⠀  │  $(tput setaf 2)${SHELL_INFO}"
+echo "  │⠀   ⠈⠻⣧⣤⣀⣤⣾⣿⣿⣷⣤⣀⣤⣼⠟⠁⠀⠀  │  $(tput setaf 3)CPU Temp......: ${TEMP}"
 echo -n "$(tput setaf 1)"
-echo "  │⠀   ⣰⡾⠋⠉⣩⣟⠁⠀⠀⠈⣻⣍⠉⠙⢷⣆⠀⠀  │  "
-echo "  │   ⢀⣿⣀⣤⡾⠛⠛⠷⣶⣶⠾⠛⠛⢷⣤⣀⣿⡀⠀  │  $(tput setaf 1)Last login....: ${LAST_LOGIN}"
-echo "  │  ⣰⡟⠉⣿⡏⠀⠀⠀⠀⢹⡏⠀⠀⠀⠀⢹⣿⠉⢻⣆  │  $(tput setaf 1)Active users..: ${ACTIVE_USERS}"
-echo "  │  ⣿⡇⠀⣿⣇⠀⠀⠀⣠⣿⣿⣄⠀⠀⠀⣸⣿⠀⢸⣿  │  $(tput setaf 1)Uptime........: ${UPTIME}"
-echo "  │  ⠙⣷⣼⠟⠻⣿⣿⡿⠋⠁⠈⠙⢿⣿⣿⠟⠻⣧⣾⠋  │  $(tput setaf 1)Memory Usage..: ${MEMMORY}"
-echo "  │   ⢸⣿⠀⠀⠈⢿⡇⠀⠀⠀⠀⢸⡿⠁⠀⠀⣿⡇⠀  │  $(tput setaf 1)Disk Usage....: ${DISK}"
-echo "  │⠀   ⠻⣧⣀⣀⣸⣿⣶⣤⣤⣶⣿⣇⣀⣀⣼⠟⠀⠀  │  $(tput setaf 1)Processes.....: ${PROCESSES}"
-echo "  │     ⠈⠛⢿⣿⣿⡀⠀⠀⢀⣿⣿⡿⠛⠁⠀⠀⠀  │  $(tput setaf 1)Load Average..: ${LOAD_AVERAGE}"
-echo "  │⠀⠀⠀      ⠙⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀   │  $(tput setaf 1)IP Addresses..: ${IP_ADDRESSES}"
-echo "  └────────────────────────┘  "
+echo "  │⠀   ⣰⡾⠋⠉⣩⣟⠁⠀⠀⠈⣻⣍⠉⠙⢷⣆⠀⠀  │  $(tput setaf 1)Last login....: ${LAST_LOGIN}"
+echo "  │   ⢀⣿⣀⣤⡾⠛⠛⠷⣶⣶⠾⠛⠛⢷⣤⣀⣿⡀⠀  │  $(tput setaf 1)Active users..: ${ACTIVE_USERS}"
+echo "  │  ⣰⡟⠉⣿⡏⠀⠀⠀⠀⢹⡏⠀⠀⠀⠀⢹⣿⠉⢻⣆  │  $(tput setaf 1)Uptime........: ${UPTIME}"
+echo "  │  ⣿⡇⠀⣿⣇⠀⠀⠀⣠⣿⣿⣄⠀⠀⠀⣸⣿⠀⢸⣿  │  $(tput setaf 1)Memory Usage..: ${MEMORY}"
+echo "  │  ⠙⣷⣼⠟⠻⣿⣿⡿⠋⠁⠈⠙⢿⣿⣿⠟⠻⣧⣾⠋  │  $(tput setaf 1)Disk Usage....: ${DISK}"
+echo "  │   ⢸⣿⠀⠀⠈⢿⡇⠀⠀⠀⠀⢸⡿⠁⠀⠀⣿⡇⠀  │  $(tput setaf 1)Processes.....: ${PROCESSES}"
+echo "  │⠀   ⠻⣧⣀⣀⣸⣿⣶⣤⣤⣶⣿⣇⣀⣀⣼⠟⠀⠀  │  $(tput setaf 1)Load Average..: ${LOAD_AVERAGE}"
+echo "  │     ⠈⠛⢿⣿⣿⡀⠀⠀⢀⣿⣿⡿⠛⠁⠀⠀⠀  │  $(tput setaf 1)IP Addresses..: ${IP_ADDRESSES}"
+echo "  │⠀⠀⠀      ⠙⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀   │  "
+echo "  └────────────────────────┘  "
 echo "$(tput sgr0)"
+

@@ -1,9 +1,42 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-read USER
-adduser $USER
-adduser $USER sudo
+# Create Dedicated Administrative User & Secure Root
 
-# Delete and lock root password
-sudo passwd -d root
-sudo passwd -l root
+set -e
+
+echo "=========================================================="
+echo " 👤 Administrative User Management"
+echo "=========================================================="
+
+read -r -p " ❔ Enter new administrative username: " NEW_USER
+if [ -z "$NEW_USER" ]; then
+    echo " ❌ Username cannot be empty."
+    exit 1
+fi
+
+if id "$NEW_USER" >/dev/null 2>&1; then
+    echo " ℹ️  User $NEW_USER already exists."
+else
+    echo " ⏳ Creating user $NEW_USER..."
+    sudo adduser "$NEW_USER"
+fi
+
+echo " ⏳ Granting sudo permissions..."
+sudo usermod -aG sudo "$NEW_USER"
+echo " ✅ User $NEW_USER added to sudo group."
+
+# Ensure SSH directory exists for the new user
+NEW_HOME=$(eval echo "~$NEW_USER")
+sudo mkdir -p "$NEW_HOME/.ssh"
+sudo chmod 700 "$NEW_HOME/.ssh"
+sudo touch "$NEW_HOME/.ssh/authorized_keys"
+sudo chmod 600 "$NEW_HOME/.ssh/authorized_keys"
+sudo chown -R "$NEW_USER:$NEW_USER" "$NEW_HOME/.ssh"
+
+read -r -p " ❔ Lock the root account password for enhanced security? (y/n) [default: y]: " LOCK_ROOT
+[ -z "$LOCK_ROOT" ] && LOCK_ROOT="y"
+if [ "$LOCK_ROOT" == "y" ] || [ "$LOCK_ROOT" == "Y" ]; then
+    sudo passwd -l root >/dev/null 2>&1 || true
+    echo " ✅ Root account locked (sudo usage preserved)."
+fi
+

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Button, Hamburger, RecordForm, RecordTable } from '../../components';
 import { menuItems } from '../../components/atoms/Menu/Menu';
 import { RecordChart } from '../../components/molecules/RecordChart/RecordChart';
+import { API_ENDPOINTS } from '../../config/api';
 import '../../styles/index.css';
 
 const VIEW = {
 	CHART: 'CHART',
 	TABLE: 'TABLE',
-	FORM: 'FORM',
 	GET_INITIAL: function () {
 		return this.CHART;
 	}
@@ -23,17 +23,61 @@ function Records() {
 	const [records, setRecords] = useState([]);
 	const [refreshRecords, setRefreshRecords] = useState(0);
 
-	const changeView = () => (view === VIEW.TABLE ? VIEW.CHART : VIEW.TABLE);
+	const toggleView = () => {
+		if (view === VIEW.CHART) {
+			setView(VIEW.TABLE);
+			setShowRecordTable(true);
+			setShowRecordChart(false);
+			setShowRecordForm(false);
+		} else {
+			setView(VIEW.CHART);
+			setShowRecordTable(false);
+			setShowRecordChart(true);
+			setShowRecordForm(false);
+		}
+	};
+
+	const toggleForm = () => {
+		if (showRecordForm) {
+			// Cancelling form, return to active view
+			setShowRecordForm(false);
+			if (view === VIEW.TABLE) {
+				setShowRecordTable(true);
+				setShowRecordChart(false);
+			} else {
+				setShowRecordChart(true);
+				setShowRecordTable(false);
+			}
+		} else {
+			// Opening form to add record
+			setEditRecord({ _id: null, date: null, consumption: null, price: null, cost: null });
+			setShowRecordForm(true);
+			setShowRecordTable(false);
+			setShowRecordChart(false);
+		}
+	};
 
 	const getRecords = async () => {
 		setShowSpinner(true);
-		await fetch(`https://${window.location.hostname}/api/v1/records`, { method: 'GET' })
-			.then((response) => response.json())
-			.then((data) => setRecords(data.sort((a, b) => a.date.localeCompare(b.date))));
-		setShowSpinner(false);
+		try {
+			const response = await fetch(API_ENDPOINTS.RECORDS);
+			if (!response.ok) {
+				throw new Error(`Failed to fetch records: ${response.status}`);
+			}
+			const data = await response.json();
+			if (Array.isArray(data)) {
+				setRecords(data.sort((a, b) => (a.date || '').localeCompare(b.date || '')));
+			}
+		} catch (error) {
+			console.error('Error fetching records:', error);
+		} finally {
+			setShowSpinner(false);
+		}
 	};
 
-	useEffect(() => getRecords(), [refreshRecords]);
+	useEffect(() => {
+		getRecords();
+	}, [refreshRecords]);
 
 	return (
 		<div className='app-container'>
@@ -44,24 +88,13 @@ function Records() {
 			<div>
 				<Button
 					theme={'primary'}
-					onClick={() => {
-						setShowRecordTable(changeView() === VIEW.TABLE);
-						setShowRecordChart(changeView() === VIEW.CHART);
-						setShowRecordForm(false);
-						setView(changeView);
-					}}
+					onClick={toggleView}
 				>
-					{view === VIEW.CHART ? VIEW.TABLE : VIEW.CHART}
+					{view === VIEW.CHART ? 'VIEW TABLE' : 'VIEW CHART'}
 				</Button>
 				<Button
 					theme={'primary'}
-					onClick={() => {
-						setEditRecord({ _id: null, date: null, consumption: null, price: null, cost: null });
-						setShowRecordForm((prev) => !prev);
-						setShowRecordTable(showRecordForm && changeView() === VIEW.TABLE);
-						setShowRecordChart(showRecordForm && changeView() === VIEW.CHART);
-						setView(changeView);
-					}}
+					onClick={toggleForm}
 				>
 					{showRecordForm ? 'CANCEL' : 'ADD'}
 				</Button>
@@ -94,3 +127,4 @@ function Records() {
 }
 
 export default Records;
+

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# UPM Virtual Desktop RDP Client Setup
+# (Annex: Cliente RDP - Acceso a escritorios virtuales UPM)
+
+set -e
+
+echo "=========================================================="
+echo " 🖥️  UPM Virtual Desktop RDP Client Setup"
+echo "=========================================================="
+
+echo " ⏳ Installing Remote Desktop packages (remmina & freerdp2)..."
+sudo apt-get update -y >/dev/null 2>&1
+sudo apt-get install -y remmina remmina-plugin-rdp freerdp2-x11 >/dev/null 2>&1
+echo " ✅ RDP packages installed."
+
+# Configuration directory
+TARGET_USER="${SUDO_USER:-$(whoami)}"
+USER_HOME=$(eval echo "~$TARGET_USER")
+REMMINA_DIR="$USER_HOME/.local/share/remmina"
+
+mkdir -p "$REMMINA_DIR"
+
+# Preconfigured profile for UPM Virtual Desktops
+UPM_PROFILE="$REMMINA_DIR/upm_virtual_desktop.remmina"
+
+cat <<'PROFILE' > "$UPM_PROFILE"
+[remmina]
+name=UPM Virtual Desktop
+protocol=RDP
+server=escritorios.etsisi.upm.es
+viewmode=1
+colordepth=32
+quality=0
+sound=off
+glyph-cache=1
+async-channels=1
+relax-order-checks=1
+PROFILE
+
+chown -R "$TARGET_USER:$TARGET_USER" "$REMMINA_DIR"
+chmod 600 "$UPM_PROFILE"
+
+echo " ✅ Pre-configured profile created at $UPM_PROFILE"
+echo "    Launch using: remmina -c $UPM_PROFILE"
+echo "    Or via FreeRDP: xfreerdp /v:escritorios.etsisi.upm.es /u:tu_usuario_upm /size:1920x1080"

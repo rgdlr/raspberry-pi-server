@@ -1,24 +1,77 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "n" ]; do
-    echo -n "Do you have a DDNS URL? (y/n): " && read DDNS
+# Application Deployment Script for Raspberry Pi Server
 
-    if [ "$DDNS" == "n" ] || [ "$DDNS" == "N" ]; then
-		echo "You can get your DDNS URL at https://www.noip.com"
-		# Network Public IP
-		PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-		echo "Your public IP is $PUBLIC_IP"
-		echo "Check documentation to stablish DDNS connection in router"
-        exit 1
-    elif [ "$DDNS" == "y" ] || [ "$DDNS" == "Y" ]; then
-        echo -n "DDNS URL: " && read DDNS_URL
+set -e
 
-        echo "Building app"
-        npm run build
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+FRONTEND_DIR="$REPO_DIR/web-app/frontend"
+BACKEND_DIR="$REPO_DIR/web-app/backend"
 
-        echo "Deploying files to server"
-        scp -r build/* pi@$DDNS_URL:/var/www/$DDNS_URL
-    else
-        echo -ne "\e[1A\e[K"
-    fi
+echo "=========================================="
+echo " 🚀 Raspberry Pi Server Application Deploy"
+echo "=========================================="
+
+# Choose deployment target
+DEPLOY_TARGET=""
+while [ "$DEPLOY_TARGET" != "1" ] && [ "$DEPLOY_TARGET" != "2" ]; do
+    echo " Choose deployment target:"
+    echo "  1) Local (deploy directly on this Raspberry Pi)"
+    echo "  2) Remote (deploy from workstation to Raspberry Pi over SSH)"
+    read -r -p " Selection [1/2, default: 1]: " DEPLOY_TARGET
+    [ -z "$DEPLOY_TARGET" ] && DEPLOY_TARGET="1"
 done
+
+read -r -p " ❔ Enter server domain name or web directory name [default: raspberry]: " SITE_NAME
+[ -z "$SITE_NAME" ] && SITE_NAME="raspberry"
+
+# Build Frontend Single Page App
+echo ""
+echo " ⏳ Building frontend React application..."
+if [ -d "$FRONTEND_DIR" ]; then
+    cd "$FRONTEND_DIR"
+    if [ ! -d "node_modules" ]; then
+        echo " 📦 Installing frontend dependencies..."
+        npm install
+    fi
+    npm run build
+    echo " ✅ Frontend build complete."
+else
+    echo " ❌ Frontend directory not found at $FRONTEND_DIR"
+    exit 1
+fi
+
+if [ "$DEPLOY_TARGET" == "1" ]; then
+    # Local deployment
+    TARGET_DIR="/var/www/$SITE_NAME"
+    echo " ⏳ Copying built assets to $TARGET_DIR..."
+    sudo mkdir -p "$TARGET_DIR"
+    sudo cp -r "$FRONTEND_DIR/build/"* "$TARGET_DIR/"
+    sudo chown -R www-data:www-data "$TARGET_DIR"
+    sudo chmod -R 755 "$TARGET_DIR"
+    echo " ✅ Frontend deployed to local webroot ($TARGET_DIR)."
+
+    read -r -p " ❔ Restart backend API service (raspberry-api)? (y/n) [default: y]: " RESTART_BACKEND
+    [ -z "$RESTART_BACKEND" ] && RESTART_BACKEND="y"
+    if [ "$RESTART_BACKEND" == "y" ] || [ "$RESTART_BACKEND" == "Y" ]; then
+        sudo systemctl restart raspberry-api 2>/dev/null || echo " ℹ️  raspberry-api service not started yet."
+    fi
+else
+    # Remote deployment over SSH
+    read -r -p " ❔ Remote server hostname or IP: " REMOTE_HOST
+    read -r -p " ❔ Remote SSH username [default: pi]: " REMOTE_USER
+    [ -z "$REMOTE_USER" ] && REMOTE_USER="pi"
+    read -r -p " ❔ Remote SSH port [default: 22022]: " REMOTE_PORT
+    [ -z "$REMOTE_PORT" ] && REMOTE_PORT="22022"
+
+    echo " ⏳ Transferring build files to $REMOTE_USER@$REMOTE_HOST:$REMOTE_PORT..."
+    ssh -p "$REMOTE_PORT" "$REMOTE_USER@$REMOTE_HOST" "sudo mkdir -p /var/www/$SITE_NAME && sudo chown -R $REMOTE_USER /var/www/$SITE_NAME"
+    scp -P "$REMOTE_PORT" -r "$FRONTEND_DIR/build/"* "$REMOTE_USER@$REMOTE_HOST:/var/www/$SITE_NAME/"
+    ssh -p "$REMOTE_PORT" "$REMOTE_USER@$REMOTE_HOST" "sudo chown -R www-data:www-data /var/www/$SITE_NAME && sudo systemctl reload nginx"
+    echo " ✅ Remote deployment complete."
+fi
+
+echo ""
+echo " 🎉 Deployment finished successfully!"
+

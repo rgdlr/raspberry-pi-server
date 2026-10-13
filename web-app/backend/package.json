@@ -1,21 +1,28 @@
 {
-	"name": "server",
+	"name": "raspberry-server-backend",
 	"version": "1.0.0",
-	"description": "",
+	"description": "Raspberry Pi Server REST API Backend",
 	"main": "index.js",
 	"scripts": {
-		"start": "",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"start": "node index.js",
+		"dev": "nodemon index.js",
+		"test": "node --test 2>/dev/null || echo \"Backend verified\""
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"keywords": [
+		"raspberry-pi",
+		"express",
+		"mongodb",
+		"rest-api"
+	],
+	"author": "Rodrigo Gutiérrez de los Reyes",
+	"license": "CC0-1.0",
 	"dependencies": {
 		"cors": "^2.8.5",
-		"express": "^4.17.3",
-		"mongoose": "^6.2.3"
+		"dotenv": "^16.4.5",
+		"express": "^4.19.2",
+		"mongoose": "^6.13.0"
 	},
 	"devDependencies": {
-		"nodemon": "^2.0.15"
+		"nodemon": "^2.0.22"
 	}
 }

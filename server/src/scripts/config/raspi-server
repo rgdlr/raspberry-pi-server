@@ -1,4 +1,9 @@
-1#/bin/bash
+#!/usr/bin/env bash
+
+# Raspberry Pi Server Master Provisioning Script
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_SCRIPTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo -e "\e[32m  _____       \e[31m _____                          "
 echo -e "\e[32m |  __ \      \e[31m/ ____|                         "
@@ -9,85 +14,66 @@ echo -e "\e[32m |_|  \_\_||_|\e[31m_____/ \___|_|    \_/ \___|_|   "
 echo -e "\e[32m              \e[31m                                \e[0m"
 
 echo -e "\e[33m"
-echo " Required information for server configuration"
-echo " · Packages : dependencies installation"
-echo " · DDNS URL : IP tracking and public access"
-echo " · SSH Keys : secure access to server"
-echo " · Router   : public access"
-echo " · Root     : system install and configure"
+echo " Automated Raspberry Pi Server Setup"
+echo " · Packages     : System updates & base dependencies"
+echo " · Network      : Static IP & gateway configuration"
+echo " · SSH Security : Hardened port 22022 & key-only access"
+echo " · Firewall     : UFW automated rules & rate-limiting"
+echo " · DDNS & SSL   : Domain resolution & Let's Encrypt HTTPS"
+echo " · Web & DB     : Nginx reverse proxy & MongoDB engine"
+echo " · Backend      : Node.js runtime & systemd daemon"
+echo " · Diagnostics  : MOTD interactive login banner"
 echo -e "\e[0m"
 
-sudo echo -n ""
-echo -ne "\e[1A\e[K"
+echo ""
+echo -e " \e[34m[1/12] Packages:\e[36m Update & upgrade\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-update"
 
 echo ""
-echo -e " \e[34mInstall:\e[36m packages\e[0m"
-echo ""
-source ../raspi-update
-echo ""
+echo -e " \e[34m[2/12] Network:\e[36m Static IP configuration\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-static"
 
 echo ""
-echo -e " \e[34mConfiguration:\e[36m DDNS\e[0m"
-echo ""
-source ../raspi-ddns
-echo ""
+echo -e " \e[34m[3/12] SSH:\e[36m Keypair and authorization\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-sshkeys"
 
 echo ""
-echo -e " \e[34mConfiguration:\e[36m SSH keys\e[0m"
-echo ""
-source ../raspi-sshkeys
-echo ""
+echo -e " \e[34m[4/12] SSH:\e[36m Daemon hardening\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-sshd"
 
 echo ""
-echo -e " \e[34mConfiguration:\e[36m SSH server\e[0m"
-echo ""
-source ../raspi-sshd
-echo ""
+echo -e " \e[34m[5/12] Security:\e[36m UFW Firewall\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-firewall"
 
 echo ""
-echo -e " \e[34mConfiguration:\e[36m firewall\e[0m"
-echo ""
-source ../raspi-firewall
-echo ""
+echo -e " \e[34m[6/12] Energy:\e[36m Connectivity optimization\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-connectivity"
 
 echo ""
-echo -e " \e[34mConfiguration:\e[36m static IP\e[0m"
-echo ""
-source ../raspi-static
-echo ""
+echo -e " \e[34m[7/12] Connectivity:\e[36m Dynamic DNS (DDNS)\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-ddns"
 
 echo ""
-echo -e " \e[34mConfiguration:\e[36m connectivity\e[0m"
-echo ""
-source ../raspi-connectivity
-echo ""
+echo -e " \e[34m[8/12] Runtime:\e[36m Node.js & NPM LTS\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-node"
 
 echo ""
-echo -e " \e[34mInstall:\e[36m database\e[0m"
-echo ""
-source ../raspi-mongodb
-echo ""
+echo -e " \e[34m[9/12] Database:\e[36m MongoDB persistence engine\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-mongodb"
 
 echo ""
-echo -e " \e[34mInstall:\e[36m web server\e[0m"
-echo ""
-source ../raspi-nginx
-echo ""
+echo -e " \e[34m[10/12] Web Server:\e[36m Nginx reverse proxy\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-nginx"
 
 echo ""
-echo -e " \e[34mInstall:\e[36m backend tools\e[0m"
-echo ""
-source ../raspi-node
-echo ""
+echo -e " \e[34m[11/12] Security:\e[36m SSL/TLS Certificates\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-ssl"
 
 echo ""
-echo -e " \e[34mInstall:\e[36m SSL certificate\e[0m"
-echo ""
-source ../raspi-ssl
-echo ""
+echo -e " \e[34m[12/12] Services:\e[36m Systemd API daemon & login banner\e[0m"
+source "$ROOT_SCRIPTS_DIR/raspi-startup"
+source "$ROOT_SCRIPTS_DIR/misc/raspi-prompt"
 
 echo ""
-echo -e "\e[35m 🎉 Installation completed! 🎉\e[0m"
+echo -e "\e[35m 🎉 All installation and configuration tasks completed! 🎉\e[0m"
 echo ""
-
-exit 0

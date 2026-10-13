@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Automated Local Setup for Raspberry Pi Server
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "=========================================================="
+echo " 🍓 Running Automated Raspberry Pi Server Setup..."
+echo "=========================================================="
+
+bash "$SCRIPT_DIR/raspi-server" "$@"

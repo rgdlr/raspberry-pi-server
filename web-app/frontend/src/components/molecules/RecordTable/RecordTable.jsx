@@ -1,4 +1,5 @@
 import { Spinner } from '../../index';
+import { API_ENDPOINTS } from '../../../config/api';
 import './RecordTable.css';
 
 export function RecordTable({
@@ -10,8 +11,16 @@ export function RecordTable({
 	setRefreshRecords
 }) {
 	const deleteRecord = async (date) => {
-		await fetch(`https://${window.location.hostname}/api/v1/records/${date}`, { method: 'DELETE' });
-		setRefreshRecords((prev) => prev + 1);
+		try {
+			const res = await fetch(API_ENDPOINTS.RECORD(date), { method: 'DELETE' });
+			if (!res.ok) {
+				console.error(`Failed to delete record ${date}:`, res.statusText);
+			}
+		} catch (error) {
+			console.error(`Error deleting record ${date}:`, error);
+		} finally {
+			setRefreshRecords((prev) => prev + 1);
+		}
 	};
 
 	const editRecord = async ({ _id, date, consumption, price, cost }) => {
@@ -38,26 +47,35 @@ export function RecordTable({
 						</tr>
 					</thead>
 					<tbody>
-						{records.map(({ _id, date, consumption, price, cost }) => (
-							<tr key={_id} data-record-id={_id}>
-								<td className='records-table-body-cell'>{date}</td>
-								<td className='records-table-body-cell'>{consumption} kWh</td>
-								<td className='records-table-body-cell'>{price} €/kWh</td>
-								<td className='records-table-body-cell'>{cost} €</td>
-								<td
-									className='records-table-body-cell edit'
-									onClick={() => editRecord({ _id, date, consumption, price, cost })}
-								>
-									✎
-								</td>
-								<td className='records-table-body-cell delete' onClick={() => deleteRecord(date)}>
-									✕
+						{records && records.length > 0 ? (
+							records.map(({ _id, date, consumption, price, cost }) => (
+								<tr key={_id || date} data-record-id={_id}>
+									<td className='records-table-body-cell'>{date}</td>
+									<td className='records-table-body-cell'>{consumption} kWh</td>
+									<td className='records-table-body-cell'>{price} €/kWh</td>
+									<td className='records-table-body-cell'>{cost} €</td>
+									<td
+										className='records-table-body-cell edit'
+										onClick={() => editRecord({ _id, date, consumption, price, cost })}
+									>
+										✎
+									</td>
+									<td className='records-table-body-cell delete' onClick={() => deleteRecord(date)}>
+										✕
+									</td>
+								</tr>
+							))
+						) : (
+							<tr>
+								<td colSpan='6' className='records-table-body-cell' style={{ textAlign: 'center', padding: '1.5rem' }}>
+									No records found. Click ADD to create a new record.
 								</td>
 							</tr>
-						))}
+						)}
 					</tbody>
 				</table>
 			)}
 		</>
 	);
 }
+
