@@ -1,5 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Run REST API on system start up
-# echo "sudo -i -u pi node /var/www/rgdlr.sytes.net.api/index.js &" | sudo tee -a /etc/rc.local
-echo "sudo -i -u pi /home/pi/.nvm/versions/node/v16.15.0/bin/node /var/www/rgdlr.sytes.net.api/index.js &" | sudo tee -a /etc/rc.local
+# Setup systemd service for REST API backend daemon
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+BACKEND_DIR="$REPO_DIR/web-app/backend"
+TARGET_USER="${SUDO_USER:-$(whoami)}"
+NODE_BIN=$(which node 2>/dev/null || echo "/usr/bin/node")
+
+SERVICE_FILE="/etc/systemd/system/raspberry-api.service"
+
+echo " ⏳ Configuring systemd service for backend API at $SERVICE_FILE..."
+
+sudo bash -c "cat <<EOF > '$SERVICE_FILE'
+[Unit]
+Description=Raspberry Pi Server REST API Daemon
+After=network.target mongod.service
+Wants=mongod.service
+
+[Service]
+Type=simple
+User=$TARGET_USER
+WorkingDirectory=$BACKEND_DIR
+Environment=NODE_ENV=production
+EnvironmentFile=-$BACKEND_DIR/.env
+ExecStart=$NODE_BIN index.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=raspberry-api
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+sudo chmod 644 "$SERVICE_FILE"
+sudo systemctl daemon-reload >/dev/null 2>&1
+sudo systemctl enable raspberry-api.service >/dev/null 2>&1
+
+echo " ✅ raspberry-api.service enabled."
+echo "    Start service with: sudo systemctl start raspberry-api"
+echo "    Check logs with:    journalctl -u raspberry-api -f"
+

@@ -1,14 +1,29 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Install oh-my-bash
-curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
+# Shell Prompt & MOTD Banner Installation
 
-# Configure oh-my-bash
-mv $HOME/.oh-my-bash $HOME/git/github/oh-my-bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BANNER_SCRIPT="$SCRIPTS_ROOT/raspi-banner"
 
-# Set user settings and disable auto-update
-# ...
+echo " ⏳ Configuring shell prompt and login banner..."
 
-# Enable bash history only for user session
-touch $HOME/.bash_history
-chmod 000 $HOME/.bash_history
+# Install banner in /etc/profile.d so all interactive logins show it
+if [ -f "$BANNER_SCRIPT" ]; then
+    sudo cp "$BANNER_SCRIPT" /etc/profile.d/raspi-banner.sh
+    sudo chmod +x /etc/profile.d/raspi-banner.sh
+    echo " ✅ raspi-banner installed to /etc/profile.d/raspi-banner.sh"
+fi
+
+# Add clean color prompt to ~/.bashrc if not already present
+if ! grep -q "RASPBERRY_PI_SERVER_PROMPT" "$HOME/.bashrc" 2>/dev/null; then
+    cat <<'EOF' >> "$HOME/.bashrc"
+
+# RASPBERRY_PI_SERVER_PROMPT
+if [ -n "$PS1" ]; then
+    PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
+fi
+EOF
+    echo " ✅ Enhanced prompt added to ~/.bashrc"
+fi
+

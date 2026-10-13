@@ -1,28 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Install the MongoDB 4.4 GPG key
-echo " ⏳ Database install"
-wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add - 1> /dev/null 2> /dev/null
+echo " ⏳ Preparing MongoDB database installation..."
 
+# Import GPG key cleanly without deprecated apt-key
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc 2>/dev/null | gpg --dearmor | sudo tee /etc/apt/keyrings/mongodb-server-4.4.gpg >/dev/null
 
-# Add the source location for the MongoDB packages
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list 1> /dev/null 2> /dev/null
+# Debian Buster repository provides ARM64 packages compatible with Cortex-A72 without ARMv8.2-A LSE atomics requirement
+echo "deb [ arch=arm64 signed-by=/etc/apt/keyrings/mongodb-server-4.4.gpg ] https://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list >/dev/null
 
-# Download the package details for the MongoDB packages
-sudo apt-get update 1> /dev/null 2> /dev/null
+echo " ⏳ Updating package lists and installing mongodb-org..."
+sudo apt-get update -y >/dev/null 2>&1
 
-# Install MongoDB
-sudo apt-get install -y mongodb-org 1> /dev/null 2> /dev/null
+if sudo apt-get install -y mongodb-org >/dev/null 2>&1; then
+    echo " ✅ mongodb-org installed successfully"
+    sudo systemctl daemon-reload >/dev/null 2>&1
+    sudo systemctl enable mongod >/dev/null 2>&1
+    sudo systemctl start mongod >/dev/null 2>&1
+    echo " ✅ MongoDB service (mongod) enabled and running"
+else
+    echo " ⚠️  mongodb-org package install encountered dependency issues."
+    echo "    Attempting fallback to distribution mongodb package..."
+    if sudo apt-get install -y mongodb >/dev/null 2>&1; then
+        sudo systemctl enable mongodb >/dev/null 2>&1
+        sudo systemctl start mongodb >/dev/null 2>&1
+        echo " ✅ Distribution MongoDB service enabled and running"
+    else
+        echo " ⚠️  Could not automatically install MongoDB via apt. Please verify network access."
+    fi
+fi
 
-
-# Ensure mongod config is picked up:
-sudo systemctl daemon-reload 1> /dev/null 2> /dev/null
-
-# Tell systemd to run mongod on reboot:
-sudo systemctl enable mongod 1> /dev/null 2> /dev/null
-
-# Start up mongod!
-sudo systemctl start mongod 1> /dev/null 2> /dev/null
-
-echo -ne "\e[1A\e[K"
-echo " ✅ Database install"
