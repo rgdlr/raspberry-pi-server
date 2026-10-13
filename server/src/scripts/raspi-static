@@ -1,60 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Router IP
-ROUTER_IP=$(ip r | grep default | awk '{print $3;}')
+ROUTER_IP=$(ip route 2>/dev/null | awk '/default/ {print $3}' | head -n1)
 
 # DNS IPs
-DNS_IP=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2;}' ORS=' ')
+DNS_IP=$(awk '/nameserver/ {print $2}' /etc/resolv.conf 2>/dev/null | xargs)
+[ -z "$DNS_IP" ] && DNS_IP="8.8.8.8 1.1.1.1"
 
-# LAN
-LAN_IP=$(hostname -I | awk '{print $1}')
-LAN_MASK=$(ip -f inet -o a s scope global | grep -Po 'inet \S+' | sed 's#.*/\(.*\)#\1#' | head -n1)
-LAN_IF=$(ip -o a | grep link | awk '{print $2}')
+# Detect active network interface and current IP
+ACTIVE_IF=$(ip route 2>/dev/null | awk '/default/ {print $5}' | head -n1)
+[ -z "$ACTIVE_IF" ] && ACTIVE_IF=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | grep -v 'lo' | head -n1)
+[ -z "$ACTIVE_IF" ] && ACTIVE_IF="eth0"
 
-if [ -z "$RASPBERRY_IP" ]; then
-    # Raspberry IP
-    echo " 🔎 Raspberry Pi search"
-    RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $1;}')
-    RASPBERRY_MASK=24
-    if [ -z "$RASPBERRY_IP" ]; then
-        echo -ne "\e[1A\e[K"
-        echo " ❎ Raspberry Pi search"
-        exit 1
-    else
-        echo -ne "\e[1A\e[K"
-	    echo " ✅ Raspberry Pi search"
-    fi
-fi
+CURRENT_IP=$(ip -4 addr show dev "$ACTIVE_IF" 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -n1)
+[ -z "$CURRENT_IP" ] && CURRENT_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 
-echo " ℹ️  Default Raspberry Pi IP: $RASPBERRY_IP"
-while [ "$STATIC_IP" != "y" ] && [ "$STATIC_IP" != "Y" ] && [ "$STATIC_IP" != "n" ] && [ "$STATIC_IP" != "n" ]; do
-    echo -n " ❔ Change Raspberry Pi IP? (y/n): " && read STATIC_IP
+SUBNET_MASK=$(ip -4 addr show dev "$ACTIVE_IF" 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f2 | head -n1)
+[ -z "$SUBNET_MASK" ] && SUBNET_MASK="24"
+
+RASPBERRY_IP="${RASPBERRY_IP:-$CURRENT_IP}"
+
+echo " ℹ️  Current IP: $CURRENT_IP on interface: $ACTIVE_IF"
+
+STATIC_IP=""
+while [ "$STATIC_IP" != "y" ] && [ "$STATIC_IP" != "Y" ] && [ "$STATIC_IP" != "n" ] && [ "$STATIC_IP" != "N" ]; do
+    echo -n " ❔ Set custom static IP? (y/n) [default: current IP]: " && read STATIC_IP
+    [ -z "$STATIC_IP" ] && STATIC_IP="n"
 
     if [ "$STATIC_IP" == "n" ] || [ "$STATIC_IP" == "N" ]; then
-        echo -n ""
+        RASPBERRY_IP="$CURRENT_IP"
     elif [ "$STATIC_IP" == "y" ] || [ "$STATIC_IP" == "Y" ]; then
-        while [ -z $RASPBERRY_IP_PING ] || [ $RASPBERRY_IP_PING -ne 0 ]; do
-            echo -ne " ❔ Raspberry Pi static IP: \e[33m" && read RASPBERRY_IP
-            ping -c 1 $RASPBERRY_IP 1> /dev/null 2> /dev/null
-            RASPBERRY_IP_PING=$?
-            if [ $RASPBERRY_IP_PING -ne 0 ]; then
-                echo -ne "\e[1A\e[K\e[0m ❔ Raspberry Pi static IP: \e[31m$RASPBERRY_IP\e[0m"
-                sleep 2 && echo -ne "\r\e[K\e[0m"
+        VALID_IP=0
+        while [ "$VALID_IP" -eq 0 ]; do
+            echo -ne " ❔ Enter desired static IP: \e[33m" && read DESIRED_IP
+            if [ "$DESIRED_IP" == "$CURRENT_IP" ]; then
+                echo -e "\e[0m ✅ Retaining current assigned IP: \e[32m$DESIRED_IP\e[0m"
+                RASPBERRY_IP="$DESIRED_IP"
+                VALID_IP=1
             else
-                echo -ne "\e[1A\e[K\e[0m ❔ Raspberry Pi static IP: \e[32m$RASPBERRY_IP\e[0m"
-                export RASPBERRY_IP
+                # Test if the IP is already claimed by another device on the network
+                if ping -c 1 -W 1 "$DESIRED_IP" >/dev/null 2>&1; then
+                    echo -e "\e[0m ⚠️  IP \e[31m$DESIRED_IP\e[0m is already in use by another host on your network!"
+                else
+                    echo -e "\e[0m ✅ IP \e[32m$DESIRED_IP\e[0m is available."
+                    RASPBERRY_IP="$DESIRED_IP"
+                    VALID_IP=1
+                fi
             fi
         done
-    else
-        echo -ne "\e[1A\e[K"
     fi
 done
 
-# Raspberry IF
-RASPBERRY_IF=eth0
+export RASPBERRY_IP
+echo " ✅ Static IP target set to: $RASPBERRY_IP/$SUBNET_MASK (Gateway: $ROUTER_IP)"
 
-# DHCP Configuration
-echo "interface $RASPBERRY_IF
-static ip_address=$RASPBERRY_IP/$RASPBERRY_MASK
-static routers=$ROUTER_IP
-static domain_name_servers=$DNS_IP" | sudo tee -a /etc/dhcpcd.conf
+# Configure static IP in NetworkManager or dhcpcd
+if which nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManager; then
+    NM_CONN=$(nmcli -t -f NAME,DEVICE connection show --active 2>/dev/null | grep ":$ACTIVE_IF" | cut -d: -f1 | head -n1)
+    if [ -n "$NM_CONN" ]; then
+        echo " ⏳ Configuring static IP via NetworkManager..."
+        sudo nmcli connection modify "$NM_CONN" ipv4.addresses "$RASPBERRY_IP/$SUBNET_MASK" ipv4.gateway "$ROUTER_IP" ipv4.dns "$DNS_IP" ipv4.method manual
+        echo " ✅ NetworkManager configured"
+    fi
+elif [ -f /etc/dhcpcd.conf ]; then
+    echo " ⏳ Configuring static IP via dhcpcd..."
+    [ ! -f /etc/dhcpcd.conf.bak ] && sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.bak
+    # Remove previous configuration block for this interface to avoid duplicate declarations
+    sudo sed -i "/# Raspberry Pi Server Static IP/,+4d" /etc/dhcpcd.conf 2>/dev/null || true
+    echo -e "\n# Raspberry Pi Server Static IP\ninterface $ACTIVE_IF\nstatic ip_address=$RASPBERRY_IP/$SUBNET_MASK\nstatic routers=$ROUTER_IP\nstatic domain_name_servers=$DNS_IP" | sudo tee -a /etc/dhcpcd.conf >/dev/null
+    echo " ✅ dhcpcd configured"
+fi
+
