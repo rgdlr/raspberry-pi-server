@@ -274,3 +274,33 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+## Node.js & Dependencies:
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+## Production & Build Outputs:
+/web-app/frontend/build/
+dist/
+
+## Environment & Secrets:
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+
+## Operating System & Editors:
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
+
