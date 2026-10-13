@@ -4,5 +4,5 @@ import './Symbol.css';
 export function Symbol({ className, symbol }) {
 	const checkedSymbol = useSymbol(symbol);
 
-	return <img className={`symbol ${className}`} src={checkedSymbol} />;
+	return <img className={`symbol ${className}`} src={checkedSymbol} alt={symbol || 'symbol'} />;
 }

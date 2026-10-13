@@ -1,70 +1,51 @@
-# Getting Started with Create React App
+# Raspberry Pi Server — Energy Monitoring Frontend (React SPA)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This Single-Page Application (SPA) provides an interactive household energy monitoring and analytics interface for the **Raspberry Pi Server** (*Bachelor's Thesis, UPM ETSI Informáticos*).
+
+---
+
+## Architecture & Design System
+
+The application is built on **React 17** and follows the **Atomic Design** component hierarchy:
+
+- **Atoms (`src/components/atoms/`)**: Fundamental UI building blocks:
+  - `Alert`: Contextual feedback notifications (success, info, warning, danger).
+  - `Button`: Standardized action buttons with theme variants (`primary`, `secondary`, `link`).
+  - `Card`: Container components with `CardHeader`, `CardBody`, and `CardFooter`.
+  - `Hamburger`: Responsive animated navigation toggle.
+  - `Header`: Application header shell.
+  - `Input`: Controlled input fields with validation and error states.
+  - `Menu`: Navigation link bar.
+  - `Spinner`: Loading indicator.
+  - `Symbol`: SVG icon primitives.
+- **Molecules (`src/components/molecules/`)**: Composite UI widgets:
+  - `RecordChart`: Interactive Chart.js time-series visualization for consumption (kWh), price (€/kWh), and cost (€).
+  - `RecordForm`: Controlled form component for creating and editing daily energy records.
+  - `RecordTable`: Tabular view of historical records with direct edit and delete actions.
+- **Pages (`src/pages/`)**: Route-level views:
+  - `Home`: System status dashboard displaying live backend API health and quick-action cards.
+  - `Records`: Main energy management view featuring synchronized chart, table, and form toggles.
+  - `Components`: Living styleguide showcase displaying all atomic components.
+
+---
+
+## API Integration
+
+Network requests are managed via `src/config/api.js`:
+- In **development**, API calls proxy to `http://localhost:44380/api/v1` (configured via `package.json` proxy).
+- In **production**, API calls resolve to `/api/v1` routed through Nginx reverse proxy.
+
+---
 
 ## Available Scripts
 
-In the project directory, you can run:
+In this directory, you can run:
 
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Runs the development server on `http://localhost:3000`.
 
 ### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner using Jest and React Testing Library.
 
 ### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Bundles the application into optimized static assets in the `build/` directory for deployment via Nginx.
