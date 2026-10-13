@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Remote Automated Configuration Tool for Raspberry Pi Server
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "=========================================================="
+echo " 🌐 Launching Remote Automated Raspberry Pi Setup..."
+echo "=========================================================="
+
+bash "$SCRIPT_DIR/raspi-remote-manual" "$@"

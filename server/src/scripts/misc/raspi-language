@@ -1,15 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Configure locales
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-sudo locale-gen en_US.UTF-8
-sudo dpkg-reconfigure locales
+echo " ⏳ Generating locales (en_US.UTF-8 and es_ES.UTF-8)..."
+sudo locale-gen en_US.UTF-8 es_ES.UTF-8 >/dev/null 2>&1 || true
+sudo update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 >/dev/null 2>&1 || true
 
-# Configure keyboard
-cat /etc/default/keyboard \
-	| sed 's/XKBLAYOUT=\"gb\"/XKBLAYOUT=\"us\"' \
-	> keyboard \
-	&& sudo chown root:root keyboard \
-	sudo mv keyboard /etc/default/keyboard
+# Configure keyboard layout
+if [ -f /etc/default/keyboard ]; then
+    echo " ⏳ Configuring keyboard layout..."
+    sudo sed -i 's/XKBLAYOUT="gb"/XKBLAYOUT="es"/' /etc/default/keyboard 2>/dev/null || true
+    sudo setupcon 2>/dev/null || true
+    echo " ✅ Keyboard layout configured"
+fi
+echo " ✅ Language and locales configured"
+

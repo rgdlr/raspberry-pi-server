@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Interactive Modular Local Configuration for Raspberry Pi Server
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+while true; do
+    clear
+    echo "=========================================================="
+    echo " 🍓 Raspberry Pi Server - Local Modular Configuration Menu"
+    echo "=========================================================="
+    echo " 1) System Packages Update        (raspi-update)"
+    echo " 2) Static Network / IP Setup     (raspi-static)"
+    echo " 3) SSH Keypair & Authorization   (raspi-sshkeys)"
+    echo " 4) SSH Daemon Hardening          (raspi-sshd)"
+    echo " 5) UFW Firewall Security         (raspi-firewall)"
+    echo " 6) Dynamic DNS Setup             (raspi-ddns)"
+    echo " 7) Node.js & NPM Runtime         (raspi-node)"
+    echo " 8) MongoDB Database Setup        (raspi-mongodb)"
+    echo " 9) Nginx Reverse Proxy Setup     (raspi-nginx)"
+    echo "10) SSL / TLS Certificate Setup   (raspi-ssl)"
+    echo "11) REST API Systemd Daemon       (raspi-startup)"
+    echo "12) Test MOTD Login Banner        (raspi-banner)"
+    echo "13) Run Full Pipeline             (raspi-server)"
+    echo " 0) Exit"
+    echo "=========================================================="
+    read -r -p " Choose an option [0-13]: " OPTION
+
+    case $OPTION in
+        1)  bash "$SCRIPTS_ROOT/raspi-update" ;;
+        2)  bash "$SCRIPTS_ROOT/raspi-static" ;;
+        3)  bash "$SCRIPTS_ROOT/raspi-sshkeys" ;;
+        4)  bash "$SCRIPTS_ROOT/raspi-sshd" ;;
+        5)  bash "$SCRIPTS_ROOT/raspi-firewall" ;;
+        6)  bash "$SCRIPTS_ROOT/raspi-ddns" ;;
+        7)  bash "$SCRIPTS_ROOT/raspi-node" ;;
+        8)  bash "$SCRIPTS_ROOT/raspi-mongodb" ;;
+        9)  bash "$SCRIPTS_ROOT/raspi-nginx" ;;
+        10) bash "$SCRIPTS_ROOT/raspi-ssl" ;;
+        11) bash "$SCRIPTS_ROOT/raspi-startup" ;;
+        12) bash "$SCRIPTS_ROOT/raspi-banner" ;;
+        13) bash "$SCRIPT_DIR/raspi-server" ;;
+        0)  echo "Exiting configuration menu."; exit 0 ;;
+        *)  echo "Invalid option. Press Enter to retry.";;
+    esac
+    echo ""
+    read -r -p "Press Enter to return to menu..." _
+done

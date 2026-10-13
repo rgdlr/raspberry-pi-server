@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# Remote Manual Configuration Tool for Raspberry Pi Server
+# (Run from client workstation on the local network)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+echo "=========================================================="
+echo " 🌐 Raspberry Pi Server - Remote Configuration Manager"
+echo "=========================================================="
+
+# 1. Discover or enter Raspberry Pi IP
+RASPBERRY_IP=""
+if which arp-scan >/dev/null 2>&1; then
+    echo " 🔎 Scanning local network for Raspberry Pi..."
+    RASPBERRY_IP=$(sudo arp-scan -l 2>/dev/null | grep -i "Raspberry Pi" | awk '{print $1}' | head -n1 || true)
+fi
+
+if [ -n "$RASPBERRY_IP" ]; then
+    echo " ✅ Detected Raspberry Pi on LAN at: $RASPBERRY_IP"
+    read -r -p " ❔ Use detected IP ($RASPBERRY_IP)? (y/n) [default: y]: " USE_DET
+    [ -z "$USE_DET" ] && USE_DET="y"
+    if [ "$USE_DET" != "y" ] && [ "$USE_DET" != "Y" ]; then
+        RASPBERRY_IP=""
+    fi
+fi
+
+if [ -z "$RASPBERRY_IP" ]; then
+    read -r -p " ❔ Enter Raspberry Pi local IP address: " RASPBERRY_IP
+fi
+
+read -r -p " ❔ Enter remote username [default: pi]: " REMOTE_USER
+[ -z "$REMOTE_USER" ] && REMOTE_USER="pi"
+
+read -r -p " ❔ Enter current SSH port [default: 22]: " REMOTE_PORT
+[ -z "$REMOTE_PORT" ] && REMOTE_PORT="22"
+
+# 2. Check/Send SSH Public Key
+echo ""
+echo " ⏳ Checking local SSH keys..."
+if [ ! -f "$HOME/.ssh/id_rsa.pub" ] && [ ! -f "$HOME/.ssh/id_ed25519.pub" ]; then
+    echo " ❔ No local public SSH key found. Generating ED25519 keypair..."
+    ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519"
+fi
+
+PUB_KEY="$HOME/.ssh/id_ed25519.pub"
+[ ! -f "$PUB_KEY" ] && PUB_KEY="$HOME/.ssh/id_rsa.pub"
+
+read -r -p " ❔ Copy your SSH public key to Raspberry Pi? (y/n) [default: y]: " COPY_KEY
+[ -z "$COPY_KEY" ] && COPY_KEY="y"
+if [ "$COPY_KEY" == "y" ] || [ "$COPY_KEY" == "Y" ]; then
+    echo " 📤 Sending SSH key to $REMOTE_USER@$RASPBERRY_IP:$REMOTE_PORT..."
+    ssh-copy-id -p "$REMOTE_PORT" -i "$PUB_KEY" "$REMOTE_USER@$RASPBERRY_IP"
+    echo " ✅ SSH key copied successfully."
+fi
+
+# 3. Copy repository to Raspberry Pi
+read -r -p " ❔ Sync raspberry-pi-server repository to Raspberry Pi? (y/n) [default: y]: " SYNC_REPO
+[ -z "$SYNC_REPO" ] && SYNC_REPO="y"
+if [ "$SYNC_REPO" == "y" ] || [ "$SYNC_REPO" == "Y" ]; then
+    echo " 📦 Synchronizing project repository to $REMOTE_USER@$RASPBERRY_IP:~/raspberry-pi-server..."
+    ssh -p "$REMOTE_PORT" "$REMOTE_USER@$RASPBERRY_IP" "mkdir -p ~/raspberry-pi-server"
+    scp -P "$REMOTE_PORT" -r "$REPO_DIR/"* "$REMOTE_USER@$RASPBERRY_IP:~/raspberry-pi-server/"
+    echo " ✅ Project synchronized."
+fi
+
+# 4. Interactive SSH Shell into installer
+echo ""
+echo " 🚀 Connecting to Raspberry Pi to execute setup menu..."
+ssh -t -p "$REMOTE_PORT" "$REMOTE_USER@$RASPBERRY_IP" "cd ~/raspberry-pi-server && ./raspberry-pi-server-install"

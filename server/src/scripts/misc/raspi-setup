@@ -1,32 +1,68 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# Interactive TUI Setup Tool for Raspberry Pi Server
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 function raspi-menu {
-	SELECTION=$(
-		whiptail \
-			--title "Raspberry Pi Setup" \
-			--menu "Select an option" 20 80 10 \
-				"Configuration" "Generic Raspberry Pi configuration" \
-				"SSH Keys" "Create ssh keys for Raspberry Pi secure access" \
-				"SSH Copy" "Copy ssh keys to Raspberry Pi" \
-				"SSH Connect" "Connect Raspberry Pi using user and password" \
-				"SSH Connect" "Connect Raspberry Pi using ssh keys" \
-				"Update" "Update Raspberry Pi system packages" \
-				"Install" "Install Raspberry Pi packages" \
-				"Static IP" "Create Static IP for Raspberry Pi" \
-				"Public IP" "Get local network public IP" \
-				"Configure" "Configure Raspberry Pi automatically" 1>&2 2>&3 3>&1
-		)
+    SELECTION=$(
+        whiptail \
+            --title "Raspberry Pi Setup & Tools" \
+            --menu "Select an administrative action" 22 80 12 \
+                "Config"      "Launch official raspi-config tool" \
+                "Update"      "Update & upgrade all system packages" \
+                "Static IP"   "Configure static network IP address" \
+                "SSH Keys"    "Configure SSH keypairs and authorized keys" \
+                "SSH Hardening" "Harden SSH daemon (port 22022, disable password)" \
+                "Firewall"    "Configure and enable UFW firewall" \
+                "Public IP"   "Display current public WAN IP address" \
+                "Banner"      "Display diagnostics MOTD banner" \
+                "Full Setup"  "Run full automated server provisioning" \
+                "Exit"        "Quit this menu" 3>&1 1>&2 2>&3
+    )
 
-	case $SELECTION in
-		"Configuration")
-			sudo raspi-config
-			;;
-		*)
-			exit
-			;;
-	esac
+    STATUS=$?
+    if [ $STATUS -ne 0 ] || [ "$SELECTION" == "Exit" ]; then
+        clear
+        exit 0
+    fi
+
+    clear
+    case $SELECTION in
+        "Config")
+            sudo raspi-config
+            ;;
+        "Update")
+            bash "$SCRIPTS_ROOT/raspi-update"
+            ;;
+        "Static IP")
+            bash "$SCRIPTS_ROOT/raspi-static"
+            ;;
+        "SSH Keys")
+            bash "$SCRIPTS_ROOT/raspi-sshkeys"
+            ;;
+        "SSH Hardening")
+            bash "$SCRIPTS_ROOT/raspi-sshd"
+            ;;
+        "Firewall")
+            bash "$SCRIPTS_ROOT/raspi-firewall"
+            ;;
+        "Public IP")
+            bash "$SCRIPTS_ROOT/misc/raspi-network"
+            ;;
+        "Banner")
+            bash "$SCRIPTS_ROOT/raspi-banner"
+            ;;
+        "Full Setup")
+            bash "$SCRIPTS_ROOT/config/raspi-server"
+            ;;
+    esac
+    echo ""
+    read -r -p "Press Enter to return to menu..." _
 }
 
-while [ 1 ]; do
-	raspi-menu
+while true; do
+    raspi-menu
 done
+
