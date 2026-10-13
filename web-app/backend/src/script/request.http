@@ -1,7 +1,10 @@
-@entrypoint=https://rgdlr.sytes.net/api/v1
+@entrypoint=http://localhost:44380/api/v1
 
 ### GET HOME PAGE
 GET {{entrypoint}}
+
+### GET HEALTH CHECK
+GET {{entrypoint}}/health
 
 ### GET RECORDS
 GET {{entrypoint}}/records
