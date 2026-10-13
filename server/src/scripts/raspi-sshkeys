@@ -1,57 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Check SSH keys and agent
-while [ "$SSH_KEY" != "y" ] && [ "$SSH_KEY" != "Y" ] && [ "$SSH_KEY" != "n" ] && [ "$SSH_KEY" != "n" ]; do
-    echo -n " ❔ Do you have a SSH key? (y/n): " && read SSH_KEY
+TARGET_USER="${SUDO_USER:-$(whoami)}"
+USER_HOME=$(eval echo "~$TARGET_USER")
 
-    if [ "$SSH_KEY" == "n" ] || [ "$SSH_KEY" == "N" ]; then
-        ssh-keygen
-		eval `ssh-agent`
-	elif [ "$SSH_KEY" == "y" ] || [ "$SSH_KEY" == "Y" ]; then
-		echo -n ""
-	else
-		echo -ne "\e[1A\e[K"
+echo " ⏳ Checking SSH keys for user: $TARGET_USER"
+
+# Ensure ~/.ssh exists with correct permissions
+sudo -u "$TARGET_USER" mkdir -p "$USER_HOME/.ssh"
+sudo chmod 700 "$USER_HOME/.ssh"
+sudo touch "$USER_HOME/.ssh/authorized_keys"
+sudo chmod 600 "$USER_HOME/.ssh/authorized_keys"
+sudo chown -R "$TARGET_USER:$TARGET_USER" "$USER_HOME/.ssh"
+
+# Check if an authorized key is present
+AUTH_KEYS_COUNT=$(grep -c "^[a-zA-Z]" "$USER_HOME/.ssh/authorized_keys" 2>/dev/null || echo 0)
+
+if [ "$AUTH_KEYS_COUNT" -eq 0 ]; then
+    echo " ⚠️  No authorized public keys found in $USER_HOME/.ssh/authorized_keys."
+    echo "    To connect securely without passwords, you should add your client machine's public key."
+    read -r -p " ❔ Paste your client public key now (or press Enter to skip / configure later): " CLIENT_KEY
+    if [ -n "$CLIENT_KEY" ]; then
+        echo "$CLIENT_KEY" | sudo tee -a "$USER_HOME/.ssh/authorized_keys" >/dev/null
+        sudo chmod 600 "$USER_HOME/.ssh/authorized_keys"
+        echo " ✅ Public key authorized."
     fi
-done
-
-# Install arp-scan
-echo " ⏳ Network tools install"
-sudo apt-get install arp-scan 1> /dev/null
-echo -ne "\e[1A\e[K"
-echo " ✅ Network tools install"
-
-# Raspberry Pi: IP address
-echo " 🔎 Raspberry Pi search"
-RASPBERRY_IP=$(sudo arp-scan -l | grep "Raspberry Pi Foundation" | awk '{print $1;}')
-
-if [ -z "$RASPBERRY_IP" ]; then
-	echo -ne "\e[1A\e[K"
-	echo " ❎ Raspberry Pi search"
-	exit 1
 else
-	echo -ne "\e[1A\e[K"
-	echo " ✅ Raspberry Pi search"
-	export RASPBERRY_IP
-
-	# Raspberry Pi: default user and password
-	RASPBERRY_USER=pi
-	RASPBERRY_PASSWORD=raspberry
-
-	# echo "$RASPBERRY_USER@$RASPBERRY_IP's password: $RASPBERRY_PASSWORD"
-	echo "    ℹ️  User     : $RASPBERRY_USER"
-	echo "    ℹ️  Password : $RASPBERRY_PASSWORD"
-	echo "    ℹ️  IP       : $RASPBERRY_IP"
-
-	# Set up acces using ssh key
-	echo " 📤 Send SSH key to Raspberry"
-	ssh-copy-id $RASPBERRY_USER@$RASPBERRY_IP 1> /dev/null
-
-	if [ $? -ne 0 ]; then
-		echo -ne "\e[1A\e[K"
-		echo " ❎ SSH key key to Raspberry"
-		exit 1
-	else
-		echo -ne "\e[1A\e[K"
-		echo " ✅ Send SSH key to Raspberry"
-	fi
+    echo " ✅ Found $AUTH_KEYS_COUNT authorized key(s) in $USER_HOME/.ssh/authorized_keys."
 fi
+
+# Ensure user has a local keypair if desired
+if [ ! -f "$USER_HOME/.ssh/id_rsa" ] && [ ! -f "$USER_HOME/.ssh/id_ed25519" ]; then
+    read -r -p " ❔ Would you like to generate a local SSH keypair for $TARGET_USER? (y/n) [default: y]: " GEN_KEY
+    [ -z "$GEN_KEY" ] && GEN_KEY="y"
+    if [ "$GEN_KEY" == "y" ] || [ "$GEN_KEY" == "Y" ]; then
+        sudo -u "$TARGET_USER" ssh-keygen -t ed25519 -N "" -f "$USER_HOME/.ssh/id_ed25519" >/dev/null 2>&1 || sudo -u "$TARGET_USER" ssh-keygen -t rsa -b 4096 -N "" -f "$USER_HOME/.ssh/id_rsa" >/dev/null 2>&1
+        echo " ✅ Local SSH keypair generated."
+    fi
+fi
+

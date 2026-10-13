@@ -1,28 +1,33 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Install firewall
-echo " ⏳ Firewall install"
-sudo apt-get install ufw -y 1> /dev/null
-echo -ne "\e[1A\e[K"
-echo " ✅ Firewall install"
+# Install firewall if not present
+echo " ⏳ Installing and configuring UFW firewall..."
+if ! which ufw >/dev/null 2>&1; then
+    sudo apt-get update -y >/dev/null 2>&1
+    sudo apt-get install ufw -y >/dev/null 2>&1
+fi
+echo " ✅ Firewall package installed"
 
-# Update iptables
-# update-alternatives --list iptables
-# sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+# Configure firewall rules
+echo " ⏳ Setting firewall policies and rules..."
+sudo ufw default deny incoming >/dev/null 2>&1
+sudo ufw default allow outgoing >/dev/null 2>&1
 
-# Update kernel
-# sudo raspi-update
+# Allow hardened SSH port (22022) with rate-limiting to prevent brute force
+sudo ufw limit 22022/tcp comment 'Hardened SSH' >/dev/null 2>&1
 
-# Limit ssh connections through firewall
-echo " ⏳ Firewall configuration"
-sudo ufw limit 22 1> /dev/null
-sudo ufw limit 80 1> /dev/null
-sudo ufw limit 443 1> /dev/null
-sudo ufw limit 22022 1> /dev/null
-sudo ufw limit 44380 1> /dev/null
-sudo ufw enable 1> /dev/null
-echo -ne "\e[1A\e[K"
-echo " ✅ Firewall configuration"
+# Allow standard SSH port (22) temporarily as fallback during migration
+sudo ufw limit 22/tcp comment 'Standard SSH' >/dev/null 2>&1
 
-# Show ufw status
-# sudo ufw status
+# Allow HTTP and HTTPS for web server
+sudo ufw allow 80/tcp comment 'HTTP (Nginx/Certbot)' >/dev/null 2>&1
+sudo ufw allow 443/tcp comment 'HTTPS (Nginx)' >/dev/null 2>&1
+
+# Note: Backend port 44380 is intentionally NOT exposed externally
+# It is accessed via reverse proxy from Nginx on localhost (127.0.0.1:44380)
+
+# Enable firewall non-interactively
+sudo ufw --force enable >/dev/null 2>&1
+echo " ✅ Firewall active and configured"
+sudo ufw status verbose
+
