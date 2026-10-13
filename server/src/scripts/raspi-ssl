@@ -1,49 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [ -z "$DDNS_URL" ]; then
-    while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "n" ]; do
-        echo -n " ❔ Do you have a DDNS URL? (y/n): " && read DDNS
+# Install certbot and Nginx plugin
+echo " ⏳ Installing Certbot SSL packages..."
+sudo apt-get update -y >/dev/null 2>&1
+sudo apt-get install certbot python3-certbot-nginx -y >/dev/null 2>&1
+echo " ✅ Certbot packages installed"
 
-        if [ "$DDNS" == "n" ] || [ "$DDNS" == "N" ]; then
-            # Network Public IP
-            PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-            echo " ℹ️  Your public IP is $PUBLIC_IP"
-            echo " ℹ️  You can get your DDNS URL at https://www.noip.com"
-            echo " ℹ️  Check documentation to stablish DDNS connection in router"
-            exit 1
-        elif [ "$DDNS" == "y" ] || [ "$DDNS" == "Y" ]; then
-            while [ -z $DDNS_URL_PING ] || [ $DDNS_URL_PING -ne 0 ]; do
-                echo -ne " ❔ DDNS URL: \e[33m" && read DDNS_URL
-                ping -c 1 $DDNS_URL 1> /dev/null 2> /dev/null
-                DDNS_URL_PING=$?
-                if [ $DDNS_URL_PING -ne 0 ]; then
-                    echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[31m$DDNS_URL\e[0m"
-                    sleep 2 && echo -ne "\r\e[K\e[0m"
-                else
-                    echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[32m$DDNS_URL\e[0m"
-                    export DDNS_URL
-                fi
-            done
-        else
-            echo -ne "\e[1A\e[K"
+if [ -z "$DDNS_URL" ] || [ "$DDNS_URL" == "_" ] || [ "$DDNS_URL" == "localhost" ]; then
+    echo " ℹ️  No public FQDN domain specified (running in IP/LAN mode)."
+    echo "    Let's Encrypt requires a valid public registered domain name."
+    read -r -p " ❔ Generate a local self-signed SSL certificate for HTTPS testing? (y/n) [default: y]: " GEN_SELF
+    [ -z "$GEN_SELF" ] && GEN_SELF="y"
+    if [ "$GEN_SELF" == "y" ] || [ "$GEN_SELF" == "Y" ]; then
+        SSL_DIR="/etc/ssl/localcerts"
+        sudo mkdir -p "$SSL_DIR"
+        if [ ! -f "$SSL_DIR/server.crt" ]; then
+            sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -keyout "$SSL_DIR/server.key" -out "$SSL_DIR/server.crt" \
+                -subj "/C=ES/ST=Madrid/L=Madrid/O=RaspberryPiServer/CN=localhost" >/dev/null 2>&1
         fi
-    done
+        echo " ✅ Self-signed certificate generated at $SSL_DIR"
+    fi
+else
+    echo " ⏳ Obtaining Let's Encrypt SSL certificate for $DDNS_URL..."
+    echo "    (Ensure ports 80 and 443 are forwarded in your router to this Raspberry Pi)"
+
+    read -r -p " ❔ Enter your email address for certificate recovery/renewal notices: " CERT_EMAIL
+    EMAIL_FLAG="--register-unsafely-without-email"
+    if [ -n "$CERT_EMAIL" ]; then
+        EMAIL_FLAG="-m $CERT_EMAIL"
+    fi
+
+    # Run certbot with nginx plugin
+    if sudo certbot --nginx -d "$DDNS_URL" --non-interactive --agree-tos $EMAIL_FLAG --redirect; then
+        echo " ✅ SSL certificate installed and Nginx reconfigured for HTTPS."
+        sudo systemctl enable certbot.timer >/dev/null 2>&1
+    else
+        echo " ⚠️  Certbot automated challenge failed. Common reasons:"
+        echo "    1. Port 80 is not reachable from the public internet."
+        echo "    2. The domain DNS has not propagated to your public IP yet."
+        echo "    You can run 'sudo certbot --nginx -d $DDNS_URL' manually once networking is ready."
+    fi
 fi
 
-# Install certbot
-echo " ⏳ SSL certificate install"
-sudo apt-get install python3-certbot-nginx -y
-echo -ne "\e[1A\e[K"
-echo " ✅ SSL certificate install"
-
-# Configure certificate (automatically reconfigures nginx)
-echo " ⏳ SSL certificate configuration"
-sudo certbot --nginx -d $DDNS_URL
-echo -ne "\e[1A\e[K"
-echo " ✅ SSL certificate configuration"
-
-# Renewal test
-# sudo certbot renew --dry-run
-
-# Renewal (valid for 90 days)
-# sudo certbot renew

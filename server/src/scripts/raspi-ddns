@@ -1,30 +1,44 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# DDNS Advice
-while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "n" ]; do
-    echo -n " ❔ Do you have a DDNS URL? (y/n): " && read DDNS
+# Network Public IP detection
+PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com 2>/dev/null || curl -s -m 4 https://icanhazip.com 2>/dev/null || echo "Unknown")
+echo " ℹ️  Your detected public WAN IP is: $PUBLIC_IP"
+
+DDNS=""
+while [ "$DDNS" != "y" ] && [ "$DDNS" != "Y" ] && [ "$DDNS" != "n" ] && [ "$DDNS" != "N" ]; do
+    read -r -p " ❔ Do you have a dynamic domain name (DDNS / No-IP)? (y/n) [default: n]: " DDNS
+    [ -z "$DDNS" ] && DDNS="n"
 
     if [ "$DDNS" == "n" ] || [ "$DDNS" == "N" ]; then
-		# Network Public IP
-		PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-		echo " ℹ️  Your public IP is $PUBLIC_IP"
-		echo " ℹ️  You can get your DDNS URL at https://www.noip.com"
-		echo " ℹ️  Check documentation to stablish DDNS connection in router"
-        exit 1
+        echo " ℹ️  You can obtain a free dynamic hostname at: https://www.noip.com"
+        echo " ℹ️  Configure DDNS and port forwarding (ports 80, 443, 22022) in your router settings."
+        echo " ℹ️  Continuing with local network and IP addressing..."
+        DDNS_URL="_"
+        export DDNS_URL
     elif [ "$DDNS" == "y" ] || [ "$DDNS" == "Y" ]; then
-        while [ -z $DDNS_URL_PING ] || [ $DDNS_URL_PING -ne 0 ]; do
-            echo -ne " ❔ DDNS URL: \e[33m" && read DDNS_URL
-            ping -c 1 $DDNS_URL 1> /dev/null 2> /dev/null
-            DDNS_URL_PING=$?
-            if [ $DDNS_URL_PING -ne 0 ]; then
-                echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[31m$DDNS_URL\e[0m"
-                sleep 2 && echo -ne "\r\e[K\e[0m"
-            else
-                echo -ne "\e[1A\e[K\e[0m ❔ DDNS URL: \e[32m$DDNS_URL\e[0m"
+        RESOLVED=0
+        while [ "$RESOLVED" -eq 0 ]; do
+            read -r -p " ❔ Enter your DDNS hostname (e.g. yourname.ddns.net): " DDNS_URL
+            [ -z "$DDNS_URL" ] && continue
+
+            # Check if domain resolves via DNS
+            RESOLVED_IP=$(dig +short "$DDNS_URL" 2>/dev/null | tail -n1)
+            [ -z "$RESOLVED_IP" ] && RESOLVED_IP=$(getent hosts "$DDNS_URL" 2>/dev/null | awk '{print $1}')
+
+            if [ -n "$RESOLVED_IP" ]; then
+                echo -e " ✅ Domain resolves to: \e[32m$RESOLVED_IP\e[0m"
                 export DDNS_URL
+                RESOLVED=1
+            else
+                echo -e " ⚠️  Domain \e[33m$DDNS_URL\e[0m did not resolve via DNS yet."
+                read -r -p " ❔ Continue anyway with this domain? (y/n) [default: y]: " CONT
+                [ -z "$CONT" ] && CONT="y"
+                if [ "$CONT" == "y" ] || [ "$CONT" == "Y" ]; then
+                    export DDNS_URL
+                    RESOLVED=1
+                fi
             fi
         done
-    else
-        echo -ne "\e[1A\e[K"
     fi
 done
+
